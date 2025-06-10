@@ -1,0 +1,29 @@
+repositories {
+//    mavenLocal()
+    mavenCentral()
+    google() // Needed for androidx
+
+    maven { url = "https://repo.dairy.foundation/releases" }
+
+    flatDir {
+        dirs rootProject.file('libs')
+    }
+}
+
+dependencies {
+    implementation 'org.firstinspires.ftc:Inspection:10.1.1'
+    implementation 'org.firstinspires.ftc:Blocks:10.1.1'
+    implementation 'org.firstinspires.ftc:RobotCore:10.1.1'
+    implementation 'org.firstinspires.ftc:RobotServer:10.1.1'
+    implementation 'org.firstinspires.ftc:OnBotJava:10.1.1'
+    implementation 'org.firstinspires.ftc:Hardware:10.1.1'
+    implementation 'org.firstinspires.ftc:FtcCommon:10.1.1'
+    implementation 'org.firstinspires.ftc:Vision:10.1.1'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+    implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
+
+    implementation "io.github.william27b:dashboard:0.15.02"
+    implementation "io.github.william27b:core:0.15.02"
+}
+
