@@ -8,11 +8,17 @@ import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.SPEED;
 import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.endpointPID;
 import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.headingPID;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.shprobotics.pestocore.algorithms.PID;
 import com.shprobotics.pestocore.drivebases.controllers.DriveController;
 import com.shprobotics.pestocore.drivebases.controllers.MecanumController;
+import com.shprobotics.pestocore.drivebases.controllers.TeleOpController;
+import com.shprobotics.pestocore.drivebases.trackers.DeterministicTracker;
+import com.shprobotics.pestocore.drivebases.trackers.GoBildaPinpointDriver;
+import com.shprobotics.pestocore.drivebases.trackers.GoBildaPinpointTracker;
 import com.shprobotics.pestocore.geometries.PathContainer;
 import com.shprobotics.pestocore.geometries.PathFollower;
 import com.shprobotics.pestocore.processing.Cerebrum;
@@ -20,6 +26,8 @@ import com.shprobotics.pestocore.processing.ConfigInterface;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 import com.shprobotics.pestocore.processing.MotorCortex;
 import com.shprobotics.pestocore.processing.PestoConfig;
+
+import java.util.function.Function;
 
 @PestoConfig()
 public class PestoFTCConfig implements ConfigInterface {
@@ -43,17 +51,9 @@ public class PestoFTCConfig implements ConfigInterface {
     }
 
     public static class Odometry {
-        public static final double ODOMETRY_TICKS_PER_INCH = 505.316944316;
-        public static final double FORWARD_OFFSET = -6.5;
-        public static final double ODOMETRY_WIDTH = 14;
-
-        public static final String leftName = "frontLeft";
-        public static final String centerName = "frontRight";
-        public static final String rightName = "backRight";
-
-        public static final Direction leftDirection = Direction.FORWARD;
-        public static final Direction centerDirection = Direction.FORWARD;
-        public static final Direction rightDirection = Direction.FORWARD;
+        public static final GoBildaPinpointDriver.EncoderDirection xDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+        public static final GoBildaPinpointDriver.EncoderDirection yDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
+        public static final double encoderResolution = 505.3169;
     }
 
     public static void initialize(HardwareMap hardwareMap) {
@@ -61,21 +61,30 @@ public class PestoFTCConfig implements ConfigInterface {
         Cerebrum.initialize();
 
         DriveController driveController = new MecanumController(
-                MotorCortex.getMotor("0"),
-                MotorCortex.getMotor("1"),
-                MotorCortex.getMotor("2"),
-                MotorCortex.getMotor("3")
+                MotorCortex.getMotor("frontLeft"),
+                MotorCortex.getMotor("frontRight"),
+                MotorCortex.getMotor("backLeft"),
+                MotorCortex.getMotor("backRight")
         );
 
-//        driveController.configureMotorDirections(new Direction[]{
-//                Direction.REVERSE,
-//                Direction.FORWARD,
-//                Direction.REVERSE,
-//                Direction.FORWARD
-//        });
-//
-//        driveController.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
+        driveController.configureMotorDirections(new Direction[]{
+                Direction.REVERSE,
+                Direction.FORWARD,
+                Direction.FORWARD,
+                Direction.FORWARD
+        });
+
+        driveController.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        DeterministicTracker tracker = new GoBildaPinpointTracker.TrackerBuilder(
+                hardwareMap,
+                "pinpoint"
+        )
+                .setXEncoderDirection(Odometry.xDirection)
+                .setYEncoderDirection(Odometry.yDirection)
+                .setEncoderResolution(Odometry.encoderResolution)
+                .build();
+
 //        DeterministicTracker tracker = new ThreeWheelOdometryTracker.TrackerBuilder(
 //                hardwareMap,
 //                ODOMETRY_TICKS_PER_INCH,
@@ -89,21 +98,21 @@ public class PestoFTCConfig implements ConfigInterface {
 //                rightDirection
 //        )
 //                .build();
-//
-//        TeleOpController teleOpController = new TeleOpController(driveController, hardwareMap);
 
-//        teleOpController.setSpeedController(new Function<Gamepad, Double>() {
-//            @Override
-//            public Double apply(Gamepad gamepad) {
-//                return 0.0;
-//            }
-//        });
+        TeleOpController teleOpController = new TeleOpController(driveController, hardwareMap);
+
+        teleOpController.setSpeedController(new Function<Gamepad, Double>() {
+            @Override
+            public Double apply(Gamepad gamepad) {
+                return 1.0;
+            }
+        });
 
 //        teleOpController.counteractCentripetalForce(tracker, MAX_VELOCITY);
 
         FrontalLobe.driveController = driveController;
-//        FrontalLobe.teleOpController = teleOpController;
-//        FrontalLobe.tracker = tracker;
+        FrontalLobe.teleOpController = teleOpController;
+        FrontalLobe.tracker = tracker;
     }
 
     public static PathFollower.PathFollowerBuilder createPathFollower(PathContainer pathContainer) {
