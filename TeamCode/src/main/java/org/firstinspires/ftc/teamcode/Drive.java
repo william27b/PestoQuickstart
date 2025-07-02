@@ -84,8 +84,10 @@ public class Drive extends BaseRobot {
                         transferState = TransferState.TRANSFERRING;
                         break;
                     case TRANSFERRING:
+                        transferState = TransferState.RELEASING;
                         break;
                     case RELEASING:
+                        transferState = TransferState.RETURNING;
                         break;
                 }
 
