@@ -72,7 +72,7 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                if (v < 300) // this is a wait for the transfer before the transfer continues
+                if (v < 0.30) // this is a wait for the transfer before the transfer continues
                     return false;
 
                 slideSubsystem.setState(UP);
