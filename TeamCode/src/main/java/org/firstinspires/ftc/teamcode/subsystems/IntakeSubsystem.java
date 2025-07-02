@@ -20,6 +20,7 @@ public class IntakeSubsystem {
     public enum IntakeState {
         INTAKE (-1.00, 0.32, 0.49),
         NEUTRAL (0.00, 0.20, 0.49),
+        STORING (0.00, 0.05, 0.49),
         STORED (0.00, 0.05, 0.11),
         OUTTAKE (1.00, 0.32, 0.11);
 

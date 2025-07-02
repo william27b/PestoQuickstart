@@ -12,7 +12,7 @@ public class LinkageSubsystem {
     public enum LinkageState {
         OVEREXTENDED (0.58),
         RETRACTED (1.00),
-        INTAKE (1.00),
+        INTAKE (0.98),
         WALL (0.9);
 
         LinkageState(double position) {

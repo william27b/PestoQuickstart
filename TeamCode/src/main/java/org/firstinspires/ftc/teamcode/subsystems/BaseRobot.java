@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
@@ -104,6 +105,23 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
+                return true;
+            }
+        });
+
+        FrontalLobe.addMacro("intake - store", new FrontalLobe.Macro() {
+            @Override
+            public void start() {
+                extendoSubsystem.setState(IN);
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
+            }
+
+            @Override
+            public boolean loop(double v) {
+                if (extendoSubsystem.getPosition() > 40)
+                    return false;
+
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
                 return true;
             }
         });

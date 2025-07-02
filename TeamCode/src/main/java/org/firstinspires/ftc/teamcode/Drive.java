@@ -64,10 +64,14 @@ public class Drive extends BaseRobot {
             // checks for the moment the key is pressed
             if (gamepadInterface1.isKeyDown(LEFT_TRIGGER)) {
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                extendoSubsystem.setState(extendoSubsystem.getState() == IN ? OUT : IN); // toggle extension
+                if (extendoSubsystem.getState() == IN) {
+                    extendoSubsystem.setState(OUT); // toggle extension
+                } else {
+                    FrontalLobe.useMacro("intake - store");
+                }
             }
 
-            if (extendoSubsystem.getState() == IN || extendoSubsystem.getPosition() < 400)
+            if (extendoSubsystem.getState() == IN)
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
             else if (gamepadInterface1.isKey(RIGHT_TRIGGER))
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
@@ -75,9 +79,6 @@ public class Drive extends BaseRobot {
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
             else
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRAL);
-
-//            if (gamepadInterface1.isKeyDown(RIGHT_BUMPER))
-//                slideSubsystem.setState(slideSubsystem.getState() == DOWN ? UP : DOWN);
 
             if (intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
                 switch (transferState) {
