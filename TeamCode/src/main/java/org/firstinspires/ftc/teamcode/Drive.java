@@ -33,6 +33,7 @@ public class Drive extends BaseRobot {
         while (opModeIsActive() && !isStopRequested()) {
             gamepadInterface1.update();
             MotorCortex.update();
+            FrontalLobe.update();
 
             teleOpController.driveRobotCentric(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
