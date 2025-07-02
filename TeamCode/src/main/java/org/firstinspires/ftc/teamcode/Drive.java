@@ -8,20 +8,17 @@ import static com.shprobotics.pestocore.devices.GamepadKey.RIGHT_TRIGGER;
 import static com.shprobotics.pestocore.devices.GamepadKey.Y;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.OUT;
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.shprobotics.pestocore.geometries.Vector2D;
+import com.shprobotics.pestocore.processing.FrontalLobe;
 import com.shprobotics.pestocore.processing.MotorCortex;
 
-import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
 @TeleOp(name = "Drive")
 public class Drive extends BaseRobot {
@@ -82,18 +79,17 @@ public class Drive extends BaseRobot {
 //                slideSubsystem.setState(slideSubsystem.getState() == DOWN ? UP : DOWN);
 
             if (intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
-                if (slideSubsystem.getState() == SlideSubsystem.SlideState.DOWN) {
-                    clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-                    sleep(100);
-                    slideSubsystem.setState(UP);
-                    armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
-                } else if (armSubsystem.getState() == ArmSubsystem.ArmState.BUCKET && clawSubsystem.getState() == ClawSubsystem.ClawState.CLOSED) {
-                    clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                } else if (armSubsystem.getState() == ArmSubsystem.ArmState.BUCKET && clawSubsystem.getState() == ClawSubsystem.ClawState.OPEN) {
-                    clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-                    armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
-                    slideSubsystem.setState(DOWN);
+                switch (transferState) {
+                    case RETURNING:
+                        transferState = TransferState.TRANSFERRING;
+                        break;
+                    case TRANSFERRING:
+                        break;
+                    case RELEASING:
+                        break;
                 }
+
+                FrontalLobe.useMacro(transferState.getMacroAlias());
             }
 
             if (gamepadInterface1.isKeyDown(Y)) {
