@@ -35,7 +35,7 @@ public class Drive extends BaseRobot {
             MotorCortex.update();
             FrontalLobe.update();
 
-            teleOpController.driveRobotCentric(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            teleOpController.driveFieldCentric(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
             Vector2D currentPosition = tracker.getCurrentPosition().asVector();
             telemetry.addData("X", currentPosition.getX());
@@ -44,6 +44,10 @@ public class Drive extends BaseRobot {
 
             if (gamepad1.b) {
                 tracker.reset();
+            }
+
+            if(gamepad1.dpad_left){
+                teleOpController.resetIMU();
             }
 
             if (gamepadInterface1.isKey(DPAD_DOWN)) {

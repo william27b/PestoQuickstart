@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.Extendo
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.shprobotics.pestocore.devices.GamepadInterface;
 import com.shprobotics.pestocore.drivebases.controllers.MecanumController;
@@ -54,6 +55,8 @@ public class BaseRobot extends LinearOpMode {
         tracker = FrontalLobe.tracker;
         tracker.reset();
         teleOpController = FrontalLobe.teleOpController;
+
+        teleOpController.configureIMU(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.UP);
 
         clawSubsystem = new ClawSubsystem();
         extendoSubsystem = new ExtendoSubsystem();

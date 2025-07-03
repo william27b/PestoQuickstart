@@ -8,10 +8,12 @@ import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.SPEED;
 import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.endpointPID;
 import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.headingPID;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.shprobotics.pestocore.algorithms.PID;
 import com.shprobotics.pestocore.drivebases.controllers.DriveController;
 import com.shprobotics.pestocore.drivebases.controllers.MecanumController;
@@ -19,6 +21,8 @@ import com.shprobotics.pestocore.drivebases.controllers.TeleOpController;
 import com.shprobotics.pestocore.drivebases.trackers.DeterministicTracker;
 import com.shprobotics.pestocore.drivebases.trackers.GoBildaPinpointDriver;
 import com.shprobotics.pestocore.drivebases.trackers.GoBildaPinpointTracker;
+import com.shprobotics.pestocore.drivebases.trackers.Tracker;
+import com.shprobotics.pestocore.drivebases.trackers.TwoWheelOdometryTracker;
 import com.shprobotics.pestocore.geometries.PathContainer;
 import com.shprobotics.pestocore.geometries.PathFollower;
 import com.shprobotics.pestocore.processing.Cerebrum;
@@ -32,6 +36,9 @@ import java.util.function.Function;
 @PestoConfig()
 public class PestoFTCConfig implements ConfigInterface {
     public static boolean initialized = false;
+    public static double ODOMETRY_TICKS_PER_INCH = 505.3169;
+    public static double FORWARD_OFFSET = 0;
+    public static double ODOMETRY_WIDTH = 14.35782;
 
     public static class Kinematics {
         public static final double MAX_VELOCITY = 0.0;
@@ -76,14 +83,30 @@ public class PestoFTCConfig implements ConfigInterface {
 
         driveController.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        DeterministicTracker tracker = new GoBildaPinpointTracker.TrackerBuilder(
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        
+        DeterministicTracker tracker = new TwoWheelOdometryTracker.TrackerBuilder(
                 hardwareMap,
-                "pinpoint"
-        )
-                .setXEncoderDirection(Odometry.xDirection)
-                .setYEncoderDirection(Odometry.yDirection)
-                .setEncoderResolution(Odometry.encoderResolution)
-                .build();
+                ODOMETRY_TICKS_PER_INCH,
+                FORWARD_OFFSET,
+                ODOMETRY_WIDTH,
+                "frontLeft",
+                "frontRight",
+                Direction.FORWARD,
+                Direction.REVERSE
+        ).setIMUOrientation(new IMU.Parameters(orientationOnRobot)).build();
+
+//                new GoBildaPinpointTracker.TrackerBuilder(
+//                hardwareMap,
+//                "pinpoint"
+//        )
+//                .setXEncoderDirection(Odometry.xDirection)
+//                .setYEncoderDirection(Odometry.yDirection)
+//                .setEncoderResolution(Odometry.encoderResolution)
+//                .build();
 
 //        DeterministicTracker tracker = new ThreeWheelOdometryTracker.TrackerBuilder(
 //                hardwareMap,
