@@ -12,6 +12,8 @@ public class SlideSubsystem {
     public final CortexLinkedMotor topSlide;
     private SlideState state;
 
+    private double currentVelocity;
+
     public enum SlideState {
         DOWN (0),
         UP (-1350);
@@ -41,6 +43,8 @@ public class SlideSubsystem {
 
         this.botSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.topSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        this.currentVelocity = 0.0;
     }
 
     public void setState(SlideState state) {
@@ -56,7 +60,21 @@ public class SlideSubsystem {
         return this.botSlide.getCurrentPosition();
     }
 
+    public double getVelocity() {
+        return this.botSlide.getVelocity();
+    }
+
     private void update() {
+        currentVelocity = (currentVelocity * 0.9) + (this.getVelocity());
+
+        if (this.state == DOWN && currentVelocity < -200) {
+            this.botSlide.setPowerResult(0.0);
+            this.topSlide.setPowerResult(0.0);
+        } else {
+            this.botSlide.setPowerResult(0.6);
+            this.topSlide.setPowerResult(0.6);
+        }
+
         this.botSlide.setTargetPosition(this.state.getPosition());
         this.topSlide.setTargetPosition(this.state.getPosition());
     }
