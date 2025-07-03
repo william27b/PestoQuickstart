@@ -68,6 +68,7 @@ public class BaseRobot extends LinearOpMode {
         FrontalLobe.addMacro("sample - grab", new FrontalLobe.Macro() {
             @Override
             public void start() {
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
             }
 
@@ -118,10 +119,6 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                if (extendoSubsystem.getPosition() > 10)
-                    return false;
-
-                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
                 return true;
             }
         });
