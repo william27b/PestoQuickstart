@@ -71,16 +71,16 @@ public class Drive extends BaseRobot {
                 }
             }
 
-            if (extendoSubsystem.getState() == IN)
-                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
-            else if (gamepadInterface1.isKey(RIGHT_TRIGGER))
-                intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
-            else if (gamepadInterface1.isKey(A))
-                intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
-            else
-                intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRAL);
+            if (extendoSubsystem.getState() == OUT) {
+                if (gamepadInterface1.isKey(RIGHT_TRIGGER))
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
+                else if (gamepadInterface1.isKey(A))
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
+                else
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRAL);
+            }
 
-            if (intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
+            if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
                 switch (transferState) {
                     case RETURNING:
                         transferState = TransferState.TRANSFERRING;
