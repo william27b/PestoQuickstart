@@ -118,7 +118,7 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                if (extendoSubsystem.getPosition() > 40)
+                if (extendoSubsystem.getPosition() > 10)
                     return false;
 
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
