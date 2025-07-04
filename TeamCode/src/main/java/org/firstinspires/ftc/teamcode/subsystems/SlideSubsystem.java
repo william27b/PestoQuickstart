@@ -67,7 +67,7 @@ public class SlideSubsystem {
     private void update() {
         currentVelocity = (currentVelocity * 0.9) + (this.getVelocity());
 
-        if (this.state == DOWN && currentVelocity < -200) {
+        if (this.state == DOWN && currentVelocity > 50) {
             this.botSlide.setPowerResult(0.0);
             this.topSlide.setPowerResult(0.0);
         } else {

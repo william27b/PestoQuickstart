@@ -73,14 +73,19 @@ public class BaseRobot extends LinearOpMode {
             public void start() {
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+                FrontalLobe.removeMacros("sample");
             }
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.30) // this is a wait for the transfer before the transfer continues
+                if (v < 0.25) // right after the claw closes
                     return false;
 
                 slideSubsystem.setState(UP);
+
+                if (slideSubsystem.getPosition() / (-1350) <= 0.5) // 0.5 is fraction of slides up before pivoting the arm
+                    return false;
+
                 armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
 
                 return true;
@@ -91,6 +96,7 @@ public class BaseRobot extends LinearOpMode {
             @Override
             public void start() {
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                FrontalLobe.removeMacros("sample");
             }
 
             @Override
@@ -105,6 +111,7 @@ public class BaseRobot extends LinearOpMode {
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
                 armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
                 slideSubsystem.setState(DOWN);
+                FrontalLobe.removeMacros("sample");
             }
 
             @Override

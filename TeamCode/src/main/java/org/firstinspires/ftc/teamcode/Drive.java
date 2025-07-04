@@ -112,6 +112,7 @@ public class Drive extends BaseRobot {
             }
 
             intakeSubsystem.getColor(telemetry);
+            telemetry.addData("velocity", slideSubsystem.getVelocity());
             telemetry.addData("position", slideSubsystem.getPosition());
             telemetry.update();
             tracker.update();
