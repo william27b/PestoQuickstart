@@ -15,6 +15,8 @@ public class TestOp extends BaseRobot {
     public void runOpMode() {
         super.runOpMode();
 
+        tracker.reset();
+
         PathContainer path = new PathContainer.PathContainerBuilder()
                 .addCurve(new BezierCurve(
                         new Vector2D[]{
@@ -22,6 +24,7 @@ public class TestOp extends BaseRobot {
                                 new Vector2D(0, 10),
                         }
                 ))
+                .setIncrement(0.1)
                 .build();
 
         PathFollower pathFollower = new PathFollower.PathFollowerBuilder(
@@ -29,7 +32,16 @@ public class TestOp extends BaseRobot {
                 tracker,
                 path
         )
+                .setDeceleration(Double.POSITIVE_INFINITY)
+                .setSpeed(1.0)
                 .build();
+
+        mecanumController.setDriveSpeed(0.3);
+
+        telemetry.addData("x", tracker.getCurrentPosition().getX());
+        telemetry.addData("y", tracker.getCurrentPosition().getY());
+        telemetry.addData("r", tracker.getCurrentPosition().getHeadingRadians());
+        telemetry.update();
 
         waitForStart();
 
@@ -37,6 +49,15 @@ public class TestOp extends BaseRobot {
             MotorCortex.update();
             tracker.update();
             pathFollower.update();
+
+            telemetry.addData("x", tracker.getCurrentPosition().getX());
+            telemetry.addData("y", tracker.getCurrentPosition().getY());
+            telemetry.addData("r", tracker.getCurrentPosition().getHeadingRadians());
+            telemetry.addLine();
+            telemetry.addData("finished", path.isFinished());
+            telemetry.addData("completed", pathFollower.isCompleted());
+            telemetry.addData("decelerating", pathFollower.isDecelerating());
+            telemetry.update();
         }
     }
 }

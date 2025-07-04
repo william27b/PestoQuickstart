@@ -51,6 +51,7 @@ public class BaseRobot extends LinearOpMode {
 
         FrontalLobe.initialize(hardwareMap);
 
+
         mecanumController = (MecanumController) FrontalLobe.driveController;
         tracker = FrontalLobe.tracker;
         tracker.reset();
