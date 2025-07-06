@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.PestoFTCConfig.Kinematics.DECELERATION;
 import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.END_TOLERANCE_R;
 import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.END_TOLERANCE_XY;
 import static org.firstinspires.ftc.teamcode.PestoFTCConfig.PathFollowing.END_VELOCITY_TOLERANCE;
@@ -31,12 +30,20 @@ import com.shprobotics.pestocore.processing.PestoConfig;
 @PestoConfig()
 public class PestoFTCConfig implements ConfigInterface {
     public static boolean initialized = false;
-    public static double FORWARD_OFFSET = 3.125;
-    public static double ODOMETRY_WIDTH = 0.4375;
+
+    public static double endpointP = 0.0045;
+    public static double endpointI = 0.0;
+    public static double endpointD = 0.0;
+
+    public static double headingP  = 100.0;
+    public static double headingI  = 0.0;
+    public static double headingD  = 0.0;
+
+    public static double DECELERATION = 35;
 
     public static class Kinematics {
         public static final double MAX_VELOCITY = 0.0;
-        public static final double DECELERATION = 0.0;
+//        public static final double DECELERATION = 36.5;
     }
 
     public static class PathFollowing {
@@ -55,6 +62,9 @@ public class PestoFTCConfig implements ConfigInterface {
         public static final GoBildaPinpointDriver.EncoderDirection xDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
         public static final GoBildaPinpointDriver.EncoderDirection yDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
         public static final double encoderResolution = 505.3169;
+
+        public static double FORWARD_OFFSET = 3.125;
+        public static double ODOMETRY_WIDTH = 0.4375;
     }
 
     public static void initialize(HardwareMap hardwareMap) {
@@ -84,8 +94,8 @@ public class PestoFTCConfig implements ConfigInterface {
                 .setXEncoderDirection(Odometry.xDirection)
                 .setYEncoderDirection(Odometry.yDirection)
                 .setEncoderResolution(Odometry.encoderResolution)
-                .setForwardOffset(FORWARD_OFFSET)
-                .setOdometryWidth(ODOMETRY_WIDTH)
+                .setForwardOffset(Odometry.FORWARD_OFFSET)
+                .setOdometryWidth(Odometry.ODOMETRY_WIDTH)
                 .build();
 
         TeleOpController teleOpController = new TeleOpController(driveController, hardwareMap);
