@@ -5,11 +5,12 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 public class ArmSubsystem {
-    private ServoImplEx armRight;
+    private final ServoImplEx armLeft;
+    private final ServoImplEx armRight;
     private ArmState state;
 
     public enum ArmState {
-        WALL (0.04),
+        WALL (0.06),
         BUCKET (0.15),
         DEPOSIT (0.78),
         TRANSFER (0.965);
@@ -26,8 +27,12 @@ public class ArmSubsystem {
     }
 
     public ArmSubsystem(HardwareMap hardwareMap) {
-        this.armRight = (ServoImplEx) hardwareMap.get("armRight");
+        this.armLeft = (ServoImplEx) hardwareMap.get("armLeft");
+        this.armLeft.setPwmRange(new PwmControl.PwmRange(500, 2500)); // Axon PWM
+
+        this.armRight = (ServoImplEx) hardwareMap.get("armLeft");
         this.armRight.setPwmRange(new PwmControl.PwmRange(500, 2500)); // Axon PWM
+
         this.state = ArmState.TRANSFER;
 
         this.update();
@@ -43,6 +48,7 @@ public class ArmSubsystem {
     }
 
     private void update() {
+        this.armLeft.setPosition(this.state.getPosition());
         this.armRight.setPosition(this.state.getPosition());
     }
 }

@@ -12,8 +12,10 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 import com.shprobotics.pestocore.processing.PestoTelemetry;
 
-@TeleOp(name = "Control Servos", group = "Examples")
-public class ControlServos extends LinearOpMode {
+import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
+
+@TeleOp(name = "Control Robot", group = "Examples")
+public class ControlRobot extends LinearOpMode {
     public void manageServo(NumericalRange range, Servo servo) {
         DataItem item = PestoDashCore.getItem(range.getId());
 
@@ -34,6 +36,17 @@ public class ControlServos extends LinearOpMode {
         double power = (double) item.getValue();
 
         crServo.setPower(power);
+    }
+
+    public void manageSlides(NumericalRange range, SlideSubsystem slides) {
+        DataItem item = PestoDashCore.getItem(range.getId());
+
+        if (item == null || item.getValue() == null)
+            return;
+
+        double position = (double) item.getValue();
+
+        slides.setPosition((int) position);
     }
 
     @Override
@@ -59,24 +72,30 @@ public class ControlServos extends LinearOpMode {
         Servo piston1 = (Servo) hardwareMap.get("piston1");
         Servo piston2 = (Servo) hardwareMap.get("piston2");
 
+        SlideSubsystem slides = new SlideSubsystem();
+        slides.enable();
+
         // sorry the 50.0 is a bug since I forgot to scale the default value for the range
-        NumericalRange armPosition = new NumericalRange("Arm Position", 50.0, 0.0, 1.0);
+        NumericalRange armPosition = new NumericalRange("Arm Position", 100.0 * 0.04, 0.0, 1.0);
         pestoTelemetry.addToDash(armPosition);
 
-        NumericalRange linkagePosition = new NumericalRange("Linkage Position", 50.0, 0.0, 1.0);
+        NumericalRange linkagePosition = new NumericalRange("Linkage Position", 100.0 * 1.0, 0.0, 1.0);
         pestoTelemetry.addToDash(linkagePosition);
 
-        NumericalRange gatePosition = new NumericalRange("Gate Position", 50.0, 0.0, 1.0);
+        NumericalRange gatePosition = new NumericalRange("Gate Position", 100.0 * 0.11, 0.0, 1.0);
         pestoTelemetry.addToDash(gatePosition);
 
-        NumericalRange clawPosition = new NumericalRange("Claw Position", 50.0, 0.0, 1.0);
+        NumericalRange clawPosition = new NumericalRange("Claw Position", 100.0 * 1.0, 0.0, 1.0);
         pestoTelemetry.addToDash(clawPosition);
 
-        NumericalRange PTOPosition = new NumericalRange("PTO Position", 50.0, 0.0, 1.0);
-        pestoTelemetry.addToDash(PTOPosition);
+        NumericalRange slidePosition = new NumericalRange("Slide Position", 100.0 * 1.0, -1350, 0.0);
+        pestoTelemetry.addToDash(slidePosition);
 
-        NumericalRange pistonPosition = new NumericalRange("Piston Position", 50.0, 0.0, 1.0);
-        pestoTelemetry.addToDash(pistonPosition);
+//        NumericalRange PTOPosition = new NumericalRange("PTO Position", 50.0, 0.0, 1.0);
+//        pestoTelemetry.addToDash(PTOPosition);
+//
+//        NumericalRange pistonPosition = new NumericalRange("Piston Position", 50.0, 0.0, 1.0);
+//        pestoTelemetry.addToDash(pistonPosition);
 
         pestoTelemetry.update();
 
@@ -85,14 +104,16 @@ public class ControlServos extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             pestoTelemetry.update();
 
-//            manageServo(armPosition, armLeft);
+            manageServo(armPosition, armLeft);
             manageServo(armPosition, armRight);
 
             manageServo(linkagePosition, linkage); // 0.58 is overextended 1.0 is chill 0.8-0.88 is grab from intake 0.9 is grab from wall
 
-//            manageServo(gatePosition, gate);
+            manageServo(gatePosition, gate);
 
-//            manageServo(clawPosition, claw);
+            manageServo(clawPosition, claw);
+
+            manageSlides(slidePosition, slides);
 
 //            manageServo(PTOPosition, PTOLeft);
 //            manageServo(PTOPosition, PTORight);

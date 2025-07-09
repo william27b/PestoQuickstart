@@ -18,7 +18,6 @@ import com.shprobotics.pestocore.processing.MotorCortex;
 import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
 
 @TeleOp(name = "Drive")
 public class Drive extends BaseRobot {
@@ -48,6 +47,26 @@ public class Drive extends BaseRobot {
 
             if(gamepad1.dpad_left){
                 teleOpController.resetIMU();
+            }
+
+            if (gamepadInterface1.isKeyDown(Y)) {
+                switch (specState) {
+                    case RELEASE:
+                        specState = SpecState.TO_WALL;
+                        break;
+                    case TO_WALL:
+                        specState = SpecState.GRAB;
+                        break;
+                    case GRAB:
+                        specState = SpecState.HIGH_RUNG;
+                        break;
+                    case HIGH_RUNG:
+                        specState = SpecState.RELEASE;
+                        break;
+                }
+
+                FrontalLobe.removeMacros("spec");
+                FrontalLobe.useMacro(specState.getMacroAlias());
             }
 
             if (gamepadInterface1.isKey(DPAD_DOWN)) {
@@ -98,17 +117,6 @@ public class Drive extends BaseRobot {
                 }
 
                 FrontalLobe.useMacro(transferState.getMacroAlias());
-            }
-
-            if (gamepadInterface1.isKeyDown(Y)) {
-                if (linkageSubsystem.getState() != LinkageSubsystem.LinkageState.OVEREXTENDED) {
-                    clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
-                } else if (clawSubsystem.getState() != ClawSubsystem.ClawState.CLOSED) {
-                    clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-                } else {
-                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
-                }
             }
 
             intakeSubsystem.getColor(telemetry);

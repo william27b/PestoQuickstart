@@ -13,6 +13,7 @@ public class LinkageSubsystem {
         OVEREXTENDED (0.58),
         RETRACTED (1.00),
         INTAKE (0.98),
+        SPEC (0.65),
         WALL (0.9);
 
         LinkageState(double position) {
