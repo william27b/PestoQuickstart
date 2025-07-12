@@ -1,12 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
 import static com.shprobotics.pestocore.devices.GamepadKey.A;
+import static com.shprobotics.pestocore.devices.GamepadKey.B;
 import static com.shprobotics.pestocore.devices.GamepadKey.DPAD_DOWN;
+import static com.shprobotics.pestocore.devices.GamepadKey.DPAD_RIGHT;
 import static com.shprobotics.pestocore.devices.GamepadKey.LEFT_TRIGGER;
 import static com.shprobotics.pestocore.devices.GamepadKey.RIGHT_BUMPER;
 import static com.shprobotics.pestocore.devices.GamepadKey.RIGHT_TRIGGER;
 import static com.shprobotics.pestocore.devices.GamepadKey.Y;
+import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.SpecState.HIGH_RUNG;
+import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.SpecState.TO_WALL;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
+import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.MIN_OUT;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.OUT;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -18,6 +23,7 @@ import com.shprobotics.pestocore.processing.MotorCortex;
 import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
 @TeleOp(name = "Drive")
 public class Drive extends BaseRobot {
@@ -49,16 +55,13 @@ public class Drive extends BaseRobot {
                 teleOpController.resetIMU();
             }
 
-            if (gamepadInterface1.isKeyDown(Y)) {
+            if (gamepadInterface1.isKeyDown(Y) || (specState == TO_WALL && !clawSubsystem.breakbeam.getState())) {
                 switch (specState) {
                     case RELEASE:
                         specState = SpecState.TO_WALL;
                         break;
                     case TO_WALL:
-                        specState = SpecState.GRAB;
-                        break;
-                    case GRAB:
-                        specState = SpecState.HIGH_RUNG;
+                        specState = HIGH_RUNG;
                         break;
                     case HIGH_RUNG:
                         specState = SpecState.RELEASE;
@@ -70,9 +73,34 @@ public class Drive extends BaseRobot {
             }
 
             if (gamepadInterface1.isKey(DPAD_DOWN)) {
-                extendoSubsystem.extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                slideSubsystem.topSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                slideSubsystem.botSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                 while (gamepadInterface1.isKey(DPAD_DOWN) && opModeIsActive() && !isStopRequested()) {
+                    slideSubsystem.topSlide.setPowerResult(0.6);
+                    slideSubsystem.botSlide.setPowerResult(0.6);
+
+                    gamepadInterface1.update();
+                }
+
+                slideSubsystem.topSlide.setPowerResult(0.0);
+                slideSubsystem.botSlide.setPowerResult(0.0);
+
+                slideSubsystem.topSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                slideSubsystem.botSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+                slideSubsystem.setState(SlideSubsystem.SlideState.DOWN);
+
+                slideSubsystem.topSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideSubsystem.botSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                slideSubsystem.enable();
+            }
+
+            if (gamepadInterface1.isKey(DPAD_RIGHT)) {
+                extendoSubsystem.extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                while (gamepadInterface1.isKey(DPAD_RIGHT) && opModeIsActive() && !isStopRequested()) {
                     extendoSubsystem.extendo.setPowerResult(-0.6);
                     gamepadInterface1.update();
                 }
@@ -86,7 +114,8 @@ public class Drive extends BaseRobot {
 
             // checks for the moment the key is pressed
             if (gamepadInterface1.isKeyDown(LEFT_TRIGGER)) {
-                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                if (slideSubsystem.getState() == SlideSubsystem.SlideState.DOWN)
+                    clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
                 if (extendoSubsystem.getState() == IN) {
                     extendoSubsystem.setState(OUT); // toggle extension
                 } else {
@@ -99,20 +128,44 @@ public class Drive extends BaseRobot {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
                 else if (gamepadInterface1.isKey(A))
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
+                else if (extendoSubsystem.getPosition() < 540)
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRALIZING);
                 else
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRAL);
+            } else {
+                if (extendoSubsystem.getState() != MIN_OUT) {
+                    if (gamepadInterface1.isKeyUp(RIGHT_TRIGGER))
+                        extendoSubsystem.setState(MIN_OUT);
+                } else if (gamepadInterface1.isKey(RIGHT_TRIGGER)) {
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
+                } else if (gamepadInterface1.isKey(A))
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
+                else
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRALIZING);
             }
 
             if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
                 switch (transferState) {
-                    case RETURNING:
+                    case RELEASING:
+                    case FROM_SUB:
                         transferState = TransferState.TRANSFERRING;
                         break;
                     case TRANSFERRING:
                         transferState = TransferState.RELEASING;
                         break;
+                }
+
+                FrontalLobe.useMacro(transferState.getMacroAlias());
+            }
+
+            if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(B)) {
+                switch (transferState) {
                     case RELEASING:
-                        transferState = TransferState.RETURNING;
+                    case FROM_SUB:
+                        transferState = TransferState.TO_SUB;
+                        break;
+                    case TO_SUB:
+                        transferState = TransferState.FROM_SUB;
                         break;
                 }
 

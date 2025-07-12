@@ -17,8 +17,8 @@ public class SlideSubsystem {
     public enum SlideState {
         DOWN (0),
         MEDIUM(-400),
-        SPEC (-895),
-        UP (-1350);
+        SPEC (-865),
+        UP (-1250);
 
         SlideState(int position) {
             this.position = position;
@@ -74,7 +74,7 @@ public class SlideSubsystem {
     private void update() {
         currentVelocity = (currentVelocity * 0.9) + (this.getVelocity());
 
-        if (this.state == DOWN && currentVelocity < 50) {
+        if (this.state == DOWN && currentVelocity > 50) {
             this.botSlide.setPowerResult(0.0);
             this.topSlide.setPowerResult(0.0);
         } else {

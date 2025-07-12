@@ -18,11 +18,12 @@ public class IntakeSubsystem {
     private IntakeState state;
 
     public enum IntakeState {
-        INTAKE (-1.00, 0.32, 0.49),
-        NEUTRAL (0.00, 0.20, 0.49),
-        STORING (0.00, 0.00, 0.49),
-        STORED (0.00, 0.00, 0.11),
-        OUTTAKE (1.00, 0.32, 0.11);
+        INTAKE (-1.00, 0.40, 0.49),
+        NEUTRAL (0.30, 0.00, 0.49),
+        NEUTRALIZING (0.00, 0.00, 0.49),
+        STORING (-0.10, 0.05, 0.49),
+        STORED (0.00, 0.05, 0.11),
+        OUTTAKE (1.00, 0.40, 0.11);
 
         IntakeState(double power, double dropdownPosition, double gatePosition) {
             this.power = power;

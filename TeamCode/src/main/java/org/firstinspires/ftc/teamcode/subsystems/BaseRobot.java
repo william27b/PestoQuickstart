@@ -33,9 +33,10 @@ public class BaseRobot extends LinearOpMode {
     protected SpecState specState;
 
     public enum TransferState {
-        TRANSFERRING ("sample - grab"),
+        TRANSFERRING ("sample - bucket"),
         RELEASING ("sample - release"),
-        RETURNING ("sample - return");
+        TO_SUB ("sample - substation"),
+        FROM_SUB ("sample - substation - return");
 
         TransferState(String macroAlias) {
             this.macroAlias = macroAlias;
@@ -50,7 +51,6 @@ public class BaseRobot extends LinearOpMode {
 
     public enum SpecState {
         TO_WALL ("spec - wall"),
-        GRAB ("spec - grab"),
         HIGH_RUNG ("spec - high rung"),
         RELEASE ("spec - release");
 
@@ -67,7 +67,7 @@ public class BaseRobot extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        transferState = TransferState.RETURNING;
+        transferState = TransferState.RELEASING;
         specState = SpecState.RELEASE;
 
         FrontalLobe.initialize(hardwareMap);
@@ -90,12 +90,11 @@ public class BaseRobot extends LinearOpMode {
         gamepadInterface1 = new GamepadInterface(gamepad1);
         gamepadInterface2 = new GamepadInterface(gamepad2);
 
-        FrontalLobe.addMacro("sample - grab", new FrontalLobe.Macro() {
+        FrontalLobe.addMacro("sample - bucket", new FrontalLobe.Macro() {
             @Override
             public void start() {
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-                FrontalLobe.removeMacros("sample");
             }
 
             @Override
@@ -110,6 +109,11 @@ public class BaseRobot extends LinearOpMode {
 
                 armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
 
+                if (v < 1.25)
+                    return false;
+
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+
                 return true;
             }
         });
@@ -123,21 +127,53 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
+                if (v > 0.5)
+                    return false;
+
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
+                slideSubsystem.setState(DOWN);
+
                 return true;
             }
         });
 
-        FrontalLobe.addMacro("sample - return", new FrontalLobe.Macro() {
+        FrontalLobe.addMacro("sample - substation", new FrontalLobe.Macro() {
             @Override
             public void start() {
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
-                slideSubsystem.setState(DOWN);
-                FrontalLobe.removeMacros("sample");
+                slideSubsystem.setState(MEDIUM);
             }
 
             @Override
             public boolean loop(double v) {
+                if (v < 0.5) return false;
+
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
+                slideSubsystem.setState(DOWN);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+
+                return true;
+            }
+        });
+
+        FrontalLobe.addMacro("sample - substation - return", new FrontalLobe.Macro() {
+            @Override
+            public void start() {
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                slideSubsystem.setState(MEDIUM);
+            }
+
+            @Override
+            public boolean loop(double v) {
+                if (v < 0.5) return false;
+
+                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
+                slideSubsystem.setState(DOWN);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
+
                 return true;
             }
         });
@@ -175,7 +211,7 @@ public class BaseRobot extends LinearOpMode {
             }
         });
 
-        FrontalLobe.addMacro("spec - grab", new FrontalLobe.Macro() {
+        FrontalLobe.addMacro("spec - high rung", new FrontalLobe.Macro() {
             @Override
             public void start() {
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
@@ -183,20 +219,17 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                return true;
-            }
-        });
+                if (v < 0.2)
+                    return false;
 
-        FrontalLobe.addMacro("spec - high rung", new FrontalLobe.Macro() {
-            @Override
-            public void start() {
                 armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
                 slideSubsystem.setState(SPEC);
-            }
 
-            @Override
-            public boolean loop(double v) {
+                if (v < 0.7)
+                    return false;
+
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+
                 return true;
             }
         });

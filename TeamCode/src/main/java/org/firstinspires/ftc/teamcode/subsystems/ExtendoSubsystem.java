@@ -12,6 +12,7 @@ public class ExtendoSubsystem {
 
     public enum ExtendoState {
         IN (0),
+        MIN_OUT (102),
         OUT (640);
 
         ExtendoState(int position) {
@@ -42,6 +43,10 @@ public class ExtendoSubsystem {
 
     public ExtendoState getState() {
         return this.state;
+    }
+
+    public void setPosition(int position) {
+        this.extendo.setTargetPosition(position);
     }
 
     public double getPosition() {

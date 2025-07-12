@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 import com.shprobotics.pestocore.processing.PestoTelemetry;
 
+import org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
 @TeleOp(name = "Control Robot", group = "Examples")
@@ -49,6 +50,17 @@ public class ControlRobot extends LinearOpMode {
         slides.setPosition((int) position);
     }
 
+    public void manageExtendo(NumericalRange range, ExtendoSubsystem extendoSubsystem) {
+        DataItem item = PestoDashCore.getItem(range.getId());
+
+        if (item == null || item.getValue() == null)
+            return;
+
+        double position = (double) item.getValue();
+
+        extendoSubsystem.setPosition((int) position);
+    }
+
     @Override
     public void runOpMode() {
         FrontalLobe.initialize(hardwareMap);
@@ -75,6 +87,9 @@ public class ControlRobot extends LinearOpMode {
         SlideSubsystem slides = new SlideSubsystem();
         slides.enable();
 
+        ExtendoSubsystem extendoSubsystem = new ExtendoSubsystem();
+        extendoSubsystem.enable();
+
         // sorry the 50.0 is a bug since I forgot to scale the default value for the range
         NumericalRange armPosition = new NumericalRange("Arm Position", 100.0 * 0.04, 0.0, 1.0);
         pestoTelemetry.addToDash(armPosition);
@@ -91,11 +106,14 @@ public class ControlRobot extends LinearOpMode {
         NumericalRange slidePosition = new NumericalRange("Slide Position", 100.0 * 1.0, -1350, 0.0);
         pestoTelemetry.addToDash(slidePosition);
 
+        NumericalRange extendoPosition = new NumericalRange("Extendo Position", 100.0 * 0.0, 0.0, 640);
+        pestoTelemetry.addToDash(extendoPosition);
+
 //        NumericalRange PTOPosition = new NumericalRange("PTO Position", 50.0, 0.0, 1.0);
 //        pestoTelemetry.addToDash(PTOPosition);
 //
-//        NumericalRange pistonPosition = new NumericalRange("Piston Position", 50.0, 0.0, 1.0);
-//        pestoTelemetry.addToDash(pistonPosition);
+        NumericalRange pistonPosition = new NumericalRange("Piston Position", 50.0, 0.0, 1.0);
+        pestoTelemetry.addToDash(pistonPosition);
 
         pestoTelemetry.update();
 
@@ -114,13 +132,14 @@ public class ControlRobot extends LinearOpMode {
             manageServo(clawPosition, claw);
 
             manageSlides(slidePosition, slides);
+            manageExtendo(extendoPosition, extendoSubsystem);
 
 //            manageServo(PTOPosition, PTOLeft);
 //            manageServo(PTOPosition, PTORight);
 
 //            pistons are cooked #whoforgotthebearings
-//            manageServo(pistonPosition, piston1);
-//            manageServo(pistonPosition, piston2);
+            manageServo(pistonPosition, piston1);
+            manageServo(pistonPosition, piston2);
         }
     }
 }
