@@ -7,6 +7,7 @@ import static com.shprobotics.pestocore.devices.GamepadKey.DPAD_RIGHT;
 import static com.shprobotics.pestocore.devices.GamepadKey.LEFT_TRIGGER;
 import static com.shprobotics.pestocore.devices.GamepadKey.RIGHT_BUMPER;
 import static com.shprobotics.pestocore.devices.GamepadKey.RIGHT_TRIGGER;
+import static com.shprobotics.pestocore.devices.GamepadKey.TOUCHPAD;
 import static com.shprobotics.pestocore.devices.GamepadKey.Y;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.SpecState.HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.SpecState.TO_WALL;
@@ -25,10 +26,12 @@ import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
-@TeleOp(name = "Drive")
-public class Drive extends BaseRobot {
+@TeleOp(name = "Red TeleOp")
+public class RedTeleOp extends BaseRobot {
     @Override
     public void runOpMode() {
+        boolean justRed = true;
+
         super.runOpMode();
         waitForStart();
 
@@ -123,11 +126,12 @@ public class Drive extends BaseRobot {
                 }
             }
 
+            boolean shouldRejectSample = intakeSubsystem.getSample().equals("blue") || (intakeSubsystem.getSample().equals("yellow") && justRed);
             if (extendoSubsystem.getState() == OUT) {
-                if (gamepadInterface1.isKey(RIGHT_TRIGGER))
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
-                else if (gamepadInterface1.isKey(A))
+                if (gamepadInterface1.isKey(A) || shouldRejectSample)
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
+                else if (gamepadInterface1.isKey(RIGHT_TRIGGER))
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
                 else if (extendoSubsystem.getPosition() < 540)
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRALIZING);
                 else
@@ -136,12 +140,12 @@ public class Drive extends BaseRobot {
                 if (extendoSubsystem.getState() != MIN_OUT) {
                     if (gamepadInterface1.isKeyUp(RIGHT_TRIGGER))
                         extendoSubsystem.setState(MIN_OUT);
-                } else if (gamepadInterface1.isKey(RIGHT_TRIGGER)) {
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
-                } else if (gamepadInterface1.isKey(A))
+                } else if (gamepadInterface1.isKey(A) || shouldRejectSample)
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
-                else
+                 else if (gamepadInterface1.isKey(RIGHT_TRIGGER)) {
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRALIZING);
+                }
             }
 
             if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
@@ -172,8 +176,14 @@ public class Drive extends BaseRobot {
                 FrontalLobe.useMacro(transferState.getMacroAlias());
             }
 
-            intakeSubsystem.getColor(telemetry);
-            telemetry.addData("sample detected", intakeSubsystem.getSample());
+            if (gamepadInterface1.isKeyDown(TOUCHPAD))
+                justRed = !justRed;
+
+            if (justRed)
+                gamepad1.setLedColor(255, 0, 0, Integer.MAX_VALUE);
+            else
+                gamepad1.setLedColor(255, 255, 0, Integer.MAX_VALUE);
+
             telemetry.addData("velocity", slideSubsystem.getVelocity());
             telemetry.addData("position", slideSubsystem.getPosition());
             telemetry.update();
