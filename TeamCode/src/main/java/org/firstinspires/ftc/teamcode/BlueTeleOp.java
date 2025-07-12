@@ -26,11 +26,11 @@ import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
-@TeleOp(name = "Red TeleOp")
-public class RedTeleOp extends BaseRobot {
+@TeleOp(name = "Blue TeleOp")
+public class BlueTeleOp extends BaseRobot {
     @Override
     public void runOpMode() {
-        boolean justRed = true;
+        boolean justBlue = true;
 
         super.runOpMode();
         waitForStart();
@@ -126,7 +126,7 @@ public class RedTeleOp extends BaseRobot {
                 }
             }
 
-            boolean shouldRejectSample = intakeSubsystem.getSample().equals("blue") || (intakeSubsystem.getSample().equals("yellow") && justRed);
+            boolean shouldRejectSample = intakeSubsystem.getSample().equals("red") || (intakeSubsystem.getSample().equals("yellow") && justBlue);
             if (extendoSubsystem.getState() == OUT) {
                 if (shouldRejectSample)
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.MEGA_OUTTAKE);
@@ -181,10 +181,10 @@ public class RedTeleOp extends BaseRobot {
             }
 
             if (gamepadInterface1.isKeyDown(TOUCHPAD))
-                justRed = !justRed;
+                justBlue = !justBlue;
 
-            if (justRed)
-                gamepad1.setLedColor(255, 0, 0, Integer.MAX_VALUE);
+            if (justBlue)
+                gamepad1.setLedColor(0, 0, 255, Integer.MAX_VALUE);
             else
                 gamepad1.setLedColor(255, 255, 0, Integer.MAX_VALUE);
 

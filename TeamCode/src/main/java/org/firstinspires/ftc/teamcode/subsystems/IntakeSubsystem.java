@@ -25,7 +25,8 @@ public class IntakeSubsystem {
         NEUTRALIZING (0.00, 0.00, 0.49),
         STORING (-0.10, 0.05, 0.49),
         STORED (0.00, 0.05, 0.11),
-        OUTTAKE (1.00, 0.40, 0.11);
+        OUTTAKE (1.00, 0.40, 0.11),
+        MEGA_OUTTAKE (-1.00, 0.40, 0.49);
 
         IntakeState(double power, double dropdownPosition, double gatePosition) {
             this.power = power;
