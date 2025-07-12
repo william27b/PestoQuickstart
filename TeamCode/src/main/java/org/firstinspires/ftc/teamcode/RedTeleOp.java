@@ -12,7 +12,6 @@ import static com.shprobotics.pestocore.devices.GamepadKey.Y;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.SpecState.HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.SpecState.TO_WALL;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
-import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.MIN_OUT;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.OUT;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -138,18 +137,6 @@ public class RedTeleOp extends BaseRobot {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRALIZING);
                 else
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRAL);
-            } else {
-                if (extendoSubsystem.getState() != MIN_OUT) {
-                    if (gamepadInterface1.isKeyUp(RIGHT_TRIGGER))
-                        extendoSubsystem.setState(MIN_OUT);
-                } else if (shouldRejectSample)
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.MEGA_OUTTAKE);
-                else if (gamepadInterface1.isKey(A))
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
-                else if (gamepadInterface1.isKey(RIGHT_TRIGGER)) {
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRALIZING);
-                }
             }
 
             if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
