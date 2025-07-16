@@ -145,7 +145,7 @@ public class ControlRobot extends LinearOpMode {
 //                telemetry.update();
 //            }
 
-            PestoDashCore.updateItems();
+//            PestoDashCore.updateItems();
 
             manageServo(armPosition, armLeft);
             manageServo(armPosition, armRight);

@@ -10,7 +10,7 @@ public class ArmSubsystem {
     private ArmState state;
 
     public enum ArmState {
-        WALL (0.2), //from 0.04 to 0.2 for issue #14
+        WALL (0.02), //from 0.04 to 0.02 for issue #14
         BUCKET (0.16),
         DEPOSIT (0.76),
         TRANSFER (0.96);

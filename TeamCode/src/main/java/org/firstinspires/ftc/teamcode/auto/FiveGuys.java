@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 @Autonomous(name = "**Five Guys***")
 public class FiveGuys extends BaseRobot {
     private Follower follower;
-    
+
     private final Pose startPose = new Pose(8, 72, Math.toRadians(270));
     private final Pose scorePose = new Pose(40, 72, Math.toRadians(315));
 

@@ -61,6 +61,9 @@ public class RedTeleOp extends BaseRobot {
             // SPEC HIGH RUNG STATES
             if (gamepadInterface1.isKeyDown(Y) || (transferState == SPEC_WALL && !clawSubsystem.breakbeam.getState())) {
                 switch (transferState) {
+                    case RELEASE_FROM_SPEC:
+                    case RELEASE_FROM_SAMPLE:
+                    case BUCKET_TRANSFERRING:
                     case SPEC_WALL:
                         transferState = HIGH_RUNG;
                         break;
@@ -146,9 +149,9 @@ public class RedTeleOp extends BaseRobot {
                 }
             }
 
-            if (shouldRejectSample && intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING)
+            if (!shouldAccept && intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING)
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING_EMPTY);
-            else if (!shouldRejectSample && intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING_EMPTY)
+            else if (shouldAccept && intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING_EMPTY)
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
 
             if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING_EMPTY || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
