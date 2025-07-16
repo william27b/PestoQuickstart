@@ -117,7 +117,6 @@ public class BaseRobot extends LinearOpMode {
             @Override
             public void start() {
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                FrontalLobe.removeMacros("sample");
             }
 
             @Override

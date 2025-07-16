@@ -64,11 +64,11 @@ public class RedTeleOp extends BaseRobot {
                     case RELEASE_FROM_SPEC:
                     case RELEASE_FROM_SAMPLE:
                     case BUCKET_TRANSFERRING:
-                    case SPEC_WALL:
-                        transferState = HIGH_RUNG;
-                        break;
                     case HIGH_RUNG:
                         transferState = SPEC_WALL;
+                        break;
+                    case SPEC_WALL:
+                        transferState = HIGH_RUNG;
                         break;
                 }
 
@@ -140,8 +140,11 @@ public class RedTeleOp extends BaseRobot {
                 } else if (gamepadInterface1.isKey(A)) {
                     if (!FrontalLobe.hasMacro("intake - outtake"))
                         FrontalLobe.useMacro("intake - outtake");
-                } else if (gamepadInterface1.isKey(RIGHT_TRIGGER) || shouldAccept) {
+                } else if (gamepadInterface1.isKey(RIGHT_TRIGGER)) {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
+                    FrontalLobe.removeMacros("intake");
+                } else if (shouldAccept) {
+                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
                     FrontalLobe.removeMacros("intake");
                 } else {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRAL);
