@@ -31,18 +31,18 @@ import com.shprobotics.pestocore.processing.PestoConfig;
 public class PestoFTCConfig implements ConfigInterface {
     public static boolean initialized = false;
 
-    public static double endpointP = 0.0045;
+    public static double endpointP = 0.01;
     public static double endpointI = 0.0;
     public static double endpointD = 0.0;
 
-    public static double headingP  = 100.0;
+    public static double headingP  = 5.0;
     public static double headingI  = 0.0;
     public static double headingD  = 0.0;
 
     public static double DECELERATION = 35;
 
     public static class Kinematics {
-        public static final double MAX_VELOCITY = 0.0;
+        public static final double MAX_VELOCITY = 62.0;
 //        public static final double DECELERATION = 36.5;
     }
 
@@ -102,7 +102,7 @@ public class PestoFTCConfig implements ConfigInterface {
 
         teleOpController.setSpeedController(gamepad -> 1.0);
 
-//        teleOpController.counteractCentripetalForce(tracker, MAX_VELOCITY);
+        teleOpController.counteractCentripetalForce(tracker, Kinematics.MAX_VELOCITY);
 
         FrontalLobe.driveController = driveController;
         FrontalLobe.teleOpController = teleOpController;

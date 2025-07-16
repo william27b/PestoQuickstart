@@ -15,22 +15,22 @@ import com.shprobotics.pestocore.drivebases.trackers.DeterministicTracker;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 
 public class BaseRobot extends LinearOpMode {
-    protected MecanumController mecanumController;
-    protected DeterministicTracker tracker;
-    protected TeleOpController teleOpController;
+    public MecanumController mecanumController;
+    public DeterministicTracker tracker;
+    public TeleOpController teleOpController;
 
-    protected ClawSubsystem clawSubsystem;
-    protected ExtendoSubsystem extendoSubsystem;
-    protected IntakeSubsystem intakeSubsystem;
-    protected LinkageSubsystem linkageSubsystem;
-    protected SlideSubsystem slideSubsystem;
-    protected ArmSubsystem armSubsystem;
+    public ClawSubsystem clawSubsystem;
+    public ExtendoSubsystem extendoSubsystem;
+    public IntakeSubsystem intakeSubsystem;
+    public LinkageSubsystem linkageSubsystem;
+    public SlideSubsystem slideSubsystem;
+    public ArmSubsystem armSubsystem;
 
-    protected GamepadInterface gamepadInterface1;
-    protected GamepadInterface gamepadInterface2;
+    public GamepadInterface gamepadInterface1;
+    public GamepadInterface gamepadInterface2;
 
-    protected TransferState transferState;
-    protected SpecState specState;
+    public TransferState transferState;
+    public SpecState specState;
 
     public enum TransferState {
         TRANSFERRING ("sample - bucket"),
@@ -144,12 +144,17 @@ public class BaseRobot extends LinearOpMode {
             public void start() {
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-                slideSubsystem.setState(MEDIUM);
             }
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.5) return false;
+                if (v < 0.5)
+                    return false;
+
+                slideSubsystem.setState(MEDIUM);
+
+                if (v < 1.5)
+                    return false;
 
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
                 slideSubsystem.setState(DOWN);
@@ -191,6 +196,22 @@ public class BaseRobot extends LinearOpMode {
             }
         });
 
+        FrontalLobe.addMacro("intake - outtake", new FrontalLobe.Macro() {
+            @Override
+            public void start() {
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.TO_OUTTAKE);
+            }
+
+            @Override
+            public boolean loop(double v) {
+                if (v < 0.2)
+                    return false;
+
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
+
+                return false;
+            }
+        });
 
         FrontalLobe.addMacro("spec - wall", new FrontalLobe.Macro() {
             @Override

@@ -127,16 +127,19 @@ public class RedTeleOp extends BaseRobot {
 
             boolean shouldRejectSample = intakeSubsystem.getSample().equals("blue") || (intakeSubsystem.getSample().equals("yellow") && justRed);
             if (extendoSubsystem.getState() == OUT) {
-                if (shouldRejectSample)
+                if (shouldRejectSample) {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.MEGA_OUTTAKE);
-                else if (gamepadInterface1.isKey(A))
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.OUTTAKE);
-                else if (gamepadInterface1.isKey(RIGHT_TRIGGER))
+                    FrontalLobe.removeMacros("intake");
+                } else if (gamepadInterface1.isKey(A)) {
+                    if (!FrontalLobe.hasMacro("intake - outtake"))
+                        FrontalLobe.useMacro("intake - outtake");
+                } else if (gamepadInterface1.isKey(RIGHT_TRIGGER)) {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
-                else if (extendoSubsystem.getPosition() < 540)
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRALIZING);
-                else
+                    FrontalLobe.removeMacros("intake");
+                } else {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRAL);
+                    FrontalLobe.removeMacros("intake");
+                }
             }
 
             if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {

@@ -84,6 +84,8 @@ public class ControlRobot extends LinearOpMode {
         Servo piston1 = (Servo) hardwareMap.get("piston1");
         Servo piston2 = (Servo) hardwareMap.get("piston2");
 
+        Servo dropdown = (Servo) hardwareMap.get("dropdown");
+
         SlideSubsystem slides = new SlideSubsystem();
         slides.enable();
 
@@ -91,36 +93,59 @@ public class ControlRobot extends LinearOpMode {
         extendoSubsystem.enable();
 
         // sorry the 50.0 is a bug since I forgot to scale the default value for the range
-        NumericalRange armPosition = new NumericalRange("Arm Position", 100.0 * 0.04, 0.0, 1.0);
+        NumericalRange armPosition = new NumericalRange("Arm Position", 0.04, 0.0, 1.0);
         pestoTelemetry.addToDash(armPosition);
 
-        NumericalRange linkagePosition = new NumericalRange("Linkage Position", 100.0 * 1.0, 0.0, 1.0);
+        NumericalRange linkagePosition = new NumericalRange("Linkage Position", 1.0, 0.0, 1.0);
         pestoTelemetry.addToDash(linkagePosition);
 
-        NumericalRange gatePosition = new NumericalRange("Gate Position", 100.0 * 0.11, 0.0, 1.0);
+        NumericalRange gatePosition = new NumericalRange("Gate Position", 0.11, 0.0, 1.0);
         pestoTelemetry.addToDash(gatePosition);
 
-        NumericalRange clawPosition = new NumericalRange("Claw Position", 100.0 * 1.0, 0.0, 1.0);
+        NumericalRange clawPosition = new NumericalRange("Claw Position", 1.0, 0.0, 1.0);
         pestoTelemetry.addToDash(clawPosition);
 
-        NumericalRange slidePosition = new NumericalRange("Slide Position", 100.0 * 1.0, -1350, 0.0);
+        NumericalRange slidePosition = new NumericalRange("Slide Position", 1.0, -1350, 0.0);
         pestoTelemetry.addToDash(slidePosition);
 
-        NumericalRange extendoPosition = new NumericalRange("Extendo Position", 100.0 * 0.0, 0.0, 640);
+        NumericalRange extendoPosition = new NumericalRange("Extendo Position", 0.0, 0.0, 640);
         pestoTelemetry.addToDash(extendoPosition);
 
-//        NumericalRange PTOPosition = new NumericalRange("PTO Position", 50.0, 0.0, 1.0);
+//        NumericalRange PTOPosition = new NumericalRange("PTO Position", 0.5, 0.0, 1.0);
 //        pestoTelemetry.addToDash(PTOPosition);
 //
-        NumericalRange pistonPosition = new NumericalRange("Piston Position", 50.0, 0.0, 1.0);
+        NumericalRange pistonPosition = new NumericalRange("Piston Position", 0.5, 0.0, 1.0);
         pestoTelemetry.addToDash(pistonPosition);
+
+        NumericalRange dropdownPosition = new NumericalRange("Dropdown Position", 0.5, 0.0, 1.0);
+        pestoTelemetry.addToDash(dropdownPosition);
 
         pestoTelemetry.update();
 
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            pestoTelemetry.update();
+//            int i = 0;
+
+//            while (i < MessageCache.getSize()) {
+//                CachableMessage message = MessageCache.getElement(i);
+//                i++;
+//
+//                if (!(message instanceof SetData))
+//                    continue;
+//
+//                SetData setData = (SetData) message;
+//                for (DataItem item: setData.getData()) {
+//                    telemetry.addData("item id", item.getId());
+//                    telemetry.addData("item caption", item.getCaption());
+//                    telemetry.addData("item type", item.getType());
+//                    telemetry.addData("item value", item.getValue());
+//                    telemetry.addLine();
+//                }
+//                telemetry.update();
+//            }
+
+            PestoDashCore.updateItems();
 
             manageServo(armPosition, armLeft);
             manageServo(armPosition, armRight);
@@ -128,6 +153,8 @@ public class ControlRobot extends LinearOpMode {
             manageServo(linkagePosition, linkage); // 0.58 is overextended 1.0 is chill 0.8-0.88 is grab from intake 0.9 is grab from wall
 
             manageServo(gatePosition, gate);
+
+            manageServo(dropdownPosition, dropdown);
 
             manageServo(clawPosition, claw);
 

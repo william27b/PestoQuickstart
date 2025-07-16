@@ -21,12 +21,13 @@ public class IntakeSubsystem {
 
     public enum IntakeState {
         INTAKE (-1.00, 0.40, 0.49),
-        NEUTRAL (0.30, 0.00, 0.49),
-        NEUTRALIZING (0.00, 0.00, 0.49),
-        STORING (-0.10, 0.05, 0.49),
+        NEUTRAL (0.00, 0.00, 0.49),
+        STORING (-0.30, 0.05, 0.49),
+        STORING_EMPTY (0.00, 0.05, 0.49),
         STORED (0.00, 0.05, 0.11),
+        TO_OUTTAKE (0.00, 0.40, 0.11),
         OUTTAKE (1.00, 0.40, 0.11),
-        MEGA_OUTTAKE (-1.00, 0.40, 0.11);
+        MEGA_OUTTAKE (-1.00, 0.00, 0.11);
 
         IntakeState(double power, double dropdownPosition, double gatePosition) {
             this.power = power;

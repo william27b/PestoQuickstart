@@ -4,8 +4,6 @@ repositories {
     google() // Needed for androidx
 
     maven { url = "https://repo.dairy.foundation/releases" }
-    maven { url = 'https://maven.brott.dev/' }
-    maven { url= 'https://maven.pedropathing.com/' }
 
     flatDir {
         dirs rootProject.file('libs')
@@ -28,7 +26,6 @@ dependencies {
     implementation "io.github.william27b:dashboard:0.15.02"
     implementation "io.github.william27b:core:0.15.02"
 
-    implementation 'com.pedropathing:pedro:1.0.9'
-//    implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
+    implementation "com.pedropathing:pedro:1.0.9"
 }
 

@@ -2,11 +2,12 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem.LinkageState.INTAKE;
 
-import com.qualcomm.robotcore.hardware.Servo;
 import com.shprobotics.pestocore.processing.MotorCortex;
 
+import dev.frozenmilk.dairy.cachinghardware.CachingServo;
+
 public class LinkageSubsystem {
-    private final Servo linkage;
+    private final CachingServo linkage;
     private LinkageState state;
 
     public enum LinkageState {
@@ -28,7 +29,7 @@ public class LinkageSubsystem {
     }
 
     public LinkageSubsystem() {
-        this.linkage = (Servo) MotorCortex.hardwareMap.get("linkage"); // CortexLinkedServo doesn't work
+        this.linkage = MotorCortex.getServo("linkage"); // CortexLinkedServo doesn't work
         this.state = INTAKE;
 
         this.update();

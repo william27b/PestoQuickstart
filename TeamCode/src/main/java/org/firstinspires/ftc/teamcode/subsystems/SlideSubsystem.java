@@ -46,6 +46,9 @@ public class SlideSubsystem {
         this.botSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.topSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        this.botSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        this.topSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         this.currentVelocity = 0.0;
     }
 
