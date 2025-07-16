@@ -4,6 +4,7 @@ repositories {
     google() // Needed for androidx
 
     maven { url = "https://repo.dairy.foundation/releases" }
+    maven { url = "https://maven.pedropathing.com" }
 
     flatDir {
         dirs rootProject.file('libs')

@@ -9,8 +9,9 @@ import static com.shprobotics.pestocore.devices.GamepadKey.RIGHT_BUMPER;
 import static com.shprobotics.pestocore.devices.GamepadKey.RIGHT_TRIGGER;
 import static com.shprobotics.pestocore.devices.GamepadKey.TOUCHPAD;
 import static com.shprobotics.pestocore.devices.GamepadKey.Y;
-import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.SpecState.HIGH_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.SpecState.TO_WALL;
+import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.HIGH_RUNG;
+import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.RELEASE_FROM_SPEC;
+import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.SPEC_WALL;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.OUT;
 
@@ -57,23 +58,22 @@ public class RedTeleOp extends BaseRobot {
                 teleOpController.resetIMU();
             }
 
-            if (gamepadInterface1.isKeyDown(Y) || (specState == TO_WALL && !clawSubsystem.breakbeam.getState())) {
-                switch (specState) {
-                    case RELEASE:
-                        specState = SpecState.TO_WALL;
-                        break;
-                    case TO_WALL:
-                        specState = HIGH_RUNG;
+            // SPEC HIGH RUNG STATES
+            if (gamepadInterface1.isKeyDown(Y) || (transferState == SPEC_WALL && !clawSubsystem.breakbeam.getState())) {
+                switch (transferState) {
+                    case SPEC_WALL:
+                        transferState = HIGH_RUNG;
                         break;
                     case HIGH_RUNG:
-                        specState = SpecState.RELEASE;
+                        transferState = SPEC_WALL;
                         break;
                 }
 
                 FrontalLobe.removeMacros("spec");
-                FrontalLobe.useMacro(specState.getMacroAlias());
+                FrontalLobe.useMacro(transferState.getMacroAlias());
             }
 
+            // reset the vertical slides position
             if (gamepadInterface1.isKey(DPAD_DOWN)) {
                 slideSubsystem.topSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 slideSubsystem.botSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -99,6 +99,7 @@ public class RedTeleOp extends BaseRobot {
                 slideSubsystem.enable();
             }
 
+            // reset the extendo position
             if (gamepadInterface1.isKey(DPAD_RIGHT)) {
                 extendoSubsystem.extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -115,6 +116,7 @@ public class RedTeleOp extends BaseRobot {
             }
 
             // checks for the moment the key is pressed
+            // toggles the extendo out or in
             if (gamepadInterface1.isKeyDown(LEFT_TRIGGER)) {
                 if (slideSubsystem.getState() == SlideSubsystem.SlideState.DOWN)
                     clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
@@ -125,7 +127,9 @@ public class RedTeleOp extends BaseRobot {
                 }
             }
 
+            // COLOR SENSOR LOGIC
             boolean shouldRejectSample = intakeSubsystem.getSample().equals("blue") || (intakeSubsystem.getSample().equals("yellow") && justRed);
+            boolean shouldAccept = !shouldRejectSample && !intakeSubsystem.getSample().equals("nothing");
             if (extendoSubsystem.getState() == OUT) {
                 if (shouldRejectSample) {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.MEGA_OUTTAKE);
@@ -133,7 +137,7 @@ public class RedTeleOp extends BaseRobot {
                 } else if (gamepadInterface1.isKey(A)) {
                     if (!FrontalLobe.hasMacro("intake - outtake"))
                         FrontalLobe.useMacro("intake - outtake");
-                } else if (gamepadInterface1.isKey(RIGHT_TRIGGER)) {
+                } else if (gamepadInterface1.isKey(RIGHT_TRIGGER) || shouldAccept) {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
                     FrontalLobe.removeMacros("intake");
                 } else {
@@ -142,28 +146,37 @@ public class RedTeleOp extends BaseRobot {
                 }
             }
 
-            if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
+            if (shouldRejectSample && intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING)
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING_EMPTY);
+            else if (!shouldRejectSample && intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING_EMPTY)
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
+
+            if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING_EMPTY || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
                 switch (transferState) {
-                    case RELEASING:
-                    case FROM_SUB:
-                        transferState = TransferState.TRANSFERRING;
+                    case SPEC_WALL:
+                        transferState = RELEASE_FROM_SPEC;
                         break;
-                    case TRANSFERRING:
-                        transferState = TransferState.RELEASING;
+                    case RELEASE_FROM_SAMPLE:
+                    case RELEASE_FROM_SPEC:
+                        transferState = TransferState.BUCKET_TRANSFERRING;
+                        break;
+                    case BUCKET_TRANSFERRING:
+                        transferState = TransferState.RELEASE_FROM_SAMPLE;
                         break;
                 }
 
                 FrontalLobe.useMacro(transferState.getMacroAlias());
             }
 
-            if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(B)) {
+            if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING_EMPTY || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(B)) {
                 switch (transferState) {
-                    case RELEASING:
-                    case FROM_SUB:
-                        transferState = TransferState.TO_SUB;
+                    case RELEASE_FROM_SAMPLE:
+                    case RELEASE_FROM_SPEC:
+                    case FROM_SUBSTATION:
+                        transferState = TransferState.TO_SUBSTATION;
                         break;
-                    case TO_SUB:
-                        transferState = TransferState.FROM_SUB;
+                    case TO_SUBSTATION:
+                        transferState = TransferState.FROM_SUBSTATION;
                         break;
                 }
 

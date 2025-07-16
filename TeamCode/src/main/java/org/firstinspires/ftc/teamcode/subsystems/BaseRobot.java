@@ -30,13 +30,20 @@ public class BaseRobot extends LinearOpMode {
     public GamepadInterface gamepadInterface2;
 
     public TransferState transferState;
-    public SpecState specState;
 
     public enum TransferState {
-        TRANSFERRING ("sample - bucket"),
-        RELEASING ("sample - release"),
-        TO_SUB ("sample - substation"),
-        FROM_SUB ("sample - substation - return");
+        // NEITHER
+        RELEASE_FROM_SAMPLE ("sample - release"),
+        RELEASE_FROM_SPEC ("spec - release"),
+
+        // SAMPLE
+        BUCKET_TRANSFERRING ("sample - bucket"),
+        TO_SUBSTATION ("sample - substation"),
+        FROM_SUBSTATION ("sample - substation - return"),
+
+        // SPEC
+        SPEC_WALL ("spec - wall"),
+        HIGH_RUNG ("spec - high rung");
 
         TransferState(String macroAlias) {
             this.macroAlias = macroAlias;
@@ -49,26 +56,9 @@ public class BaseRobot extends LinearOpMode {
         }
     }
 
-    public enum SpecState {
-        TO_WALL ("spec - wall"),
-        HIGH_RUNG ("spec - high rung"),
-        RELEASE ("spec - release");
-
-        SpecState(String macroAlias) {
-            this.macroAlias = macroAlias;
-        }
-
-        private final String macroAlias;
-
-        public String getMacroAlias() {
-            return this.macroAlias;
-        }
-    }
-
     @Override
     public void runOpMode() {
-        transferState = TransferState.RELEASING;
-        specState = SpecState.RELEASE;
+        transferState = TransferState.RELEASE_FROM_SAMPLE;
 
         FrontalLobe.initialize(hardwareMap);
 
