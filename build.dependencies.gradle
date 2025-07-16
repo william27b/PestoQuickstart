@@ -1,5 +1,5 @@
 repositories {
-//    mavenLocal()
+    mavenLocal()
     mavenCentral()
     google() // Needed for androidx
 
@@ -24,8 +24,8 @@ dependencies {
 
     implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
 
-    implementation "io.github.william27b:dashboard:0.15.02"
-    implementation "io.github.william27b:core:0.15.02"
+    implementation "io.github.william27b:dashboard:0.15.03"
+    implementation "io.github.william27b:core:0.15.03"
 
     implementation "com.pedropathing:pedro:1.0.9"
 }
