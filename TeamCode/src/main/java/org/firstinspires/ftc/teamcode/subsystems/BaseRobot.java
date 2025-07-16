@@ -142,17 +142,17 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.1) //TODO: Check timing
+                if (v < 0.1)
                     return false;
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
 
-                if (v < 0.6)
+                if (v < 0.2)
                     return false;
 
                 slideSubsystem.setState(MEDIUM);
 
-                if (v < 1.6)
+                if (v < 1.2)
                     return false;
 
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);

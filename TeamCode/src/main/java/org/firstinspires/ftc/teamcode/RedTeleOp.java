@@ -143,9 +143,9 @@ public class RedTeleOp extends BaseRobot {
                 } else if (gamepadInterface1.isKey(RIGHT_TRIGGER)) {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
                     FrontalLobe.removeMacros("intake");
-                } else if (shouldAccept) {
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
-                    FrontalLobe.removeMacros("intake");
+//                } else if (shouldAccept) {
+//                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
+//                    FrontalLobe.removeMacros("intake");
                 } else {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.NEUTRAL);
                     FrontalLobe.removeMacros("intake");
