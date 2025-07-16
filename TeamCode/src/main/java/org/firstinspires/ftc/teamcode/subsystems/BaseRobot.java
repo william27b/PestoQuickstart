@@ -84,12 +84,17 @@ public class BaseRobot extends LinearOpMode {
             @Override
             public void start() {
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
-                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
             }
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.25) // right after the claw closes
+                if (v < 0.1)
+                    return false;
+
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+
+                if (v < 0.35) // right after the claw closes
                     return false;
 
                 slideSubsystem.setState(UP);
@@ -99,7 +104,7 @@ public class BaseRobot extends LinearOpMode {
 
                 armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
 
-                if (v < 1.25)
+                if (v < 1.35)
                     return false;
 
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
@@ -133,17 +138,22 @@ public class BaseRobot extends LinearOpMode {
             @Override
             public void start() {
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
-                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
             }
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.5)
+                if (v < 0.1) //TODO: Check timing
+                    return false;
+
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+
+                if (v < 0.6)
                     return false;
 
                 slideSubsystem.setState(MEDIUM);
 
-                if (v < 1.5)
+                if (v < 1.6)
                     return false;
 
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
@@ -230,13 +240,13 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.2)
+                if (v < 0.1) //changed from 0.2 to 0.1 for issue #12
                     return false;
 
                 armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
                 slideSubsystem.setState(SPEC);
 
-                if (v < 0.7)
+                if (v < 0.6) //from 0.7 to 0.6 for issue #12
                     return false;
 
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
@@ -258,7 +268,7 @@ public class BaseRobot extends LinearOpMode {
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
                 slideSubsystem.setState(DOWN);
-                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL); //from transfer to wall for issue #12
 
                 return true;
             }

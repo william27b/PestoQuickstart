@@ -11,11 +11,12 @@ public class LinkageSubsystem {
     private LinkageState state;
 
     public enum LinkageState {
-        OVEREXTENDED (0.58),
+        OVEREXTENDED (0.5), //from 0.58 to 0.5 for issue #14
         RETRACTED (1.00),
         INTAKE (0.98),
+        TRANSFER(0.92),
         SPEC (0.65),
-        WALL (0.9);
+        WALL (0.88); //from 0.9 to 0.88 for issue #14
 
         LinkageState(double position) {
             this.position = position;
