@@ -14,6 +14,8 @@ import com.shprobotics.pestocore.drivebases.controllers.TeleOpController;
 import com.shprobotics.pestocore.drivebases.trackers.DeterministicTracker;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 
+import org.firstinspires.ftc.teamcode.PestoFTCConfig;
+
 public class BaseRobot extends LinearOpMode {
     public MecanumController mecanumController;
     public DeterministicTracker tracker;
@@ -35,6 +37,7 @@ public class BaseRobot extends LinearOpMode {
         // NEITHER
         RELEASE_FROM_SAMPLE ("sample - release"),
         RELEASE_FROM_SPEC ("spec - release"),
+        AUTO_SPEC_START("auto - spec"),
 
         // SAMPLE
         BUCKET_TRANSFERRING ("sample - bucket"),
@@ -43,6 +46,7 @@ public class BaseRobot extends LinearOpMode {
 
         // SPEC
         SPEC_WALL ("spec - wall"),
+        SPEC_WALL_FROM_RUNG ("spec - wall - from rung"),
         HIGH_RUNG ("spec - high rung");
 
         TransferState(String macroAlias) {
@@ -64,11 +68,13 @@ public class BaseRobot extends LinearOpMode {
 
 
         mecanumController = (MecanumController) FrontalLobe.driveController;
-        tracker = FrontalLobe.tracker;
-        tracker.reset();
-        teleOpController = FrontalLobe.teleOpController;
+        if (PestoFTCConfig.initializePinpoint) {
+            tracker = FrontalLobe.tracker;
+            tracker.reset();
 
-        teleOpController.configureIMU(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.UP);
+            teleOpController = FrontalLobe.teleOpController;
+            teleOpController.configureIMU(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.UP);
+        }
 
         clawSubsystem = new ClawSubsystem();
         extendoSubsystem = new ExtendoSubsystem();
@@ -84,17 +90,23 @@ public class BaseRobot extends LinearOpMode {
             @Override
             public void start() {
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
+                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
             }
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.1)
+
+                if (v < 0.5)
+                    return false;
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
+
+                if (v < 0.6)
                     return false;
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
 
-                if (v < 0.35) // right after the claw closes
+                if (v < 0.85) // right after the claw closes
                     return false;
 
                 slideSubsystem.setState(UP);
@@ -104,7 +116,7 @@ public class BaseRobot extends LinearOpMode {
 
                 armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
 
-                if (v < 1.35)
+                if (v < 1.85)
                     return false;
 
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
@@ -231,6 +243,27 @@ public class BaseRobot extends LinearOpMode {
             }
         });
 
+        FrontalLobe.addMacro("spec - wall - from rung", new FrontalLobe.Macro() {
+            @Override
+            public void start() {
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+            }
+
+            @Override
+            public boolean loop(double v) {
+                if (v < 0.2) return false;
+
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
+
+                if (v < 0.5) return false;
+
+                slideSubsystem.setState(DOWN);
+
+                return true;
+            }
+        });
+
         FrontalLobe.addMacro("spec - high rung", new FrontalLobe.Macro() {
             @Override
             public void start() {
@@ -239,13 +272,13 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.1) //changed from 0.2 to 0.1 for issue #12
+                if (v < 0.1)
                     return false;
 
                 armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
                 slideSubsystem.setState(SPEC);
 
-                if (v < 0.6) //from 0.7 to 0.6 for issue #12
+                if (v < 1.0)
                     return false;
 
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
@@ -267,8 +300,22 @@ public class BaseRobot extends LinearOpMode {
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
                 slideSubsystem.setState(DOWN);
-                armSubsystem.setState(ArmSubsystem.ArmState.WALL); //from transfer to wall for issue #12
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL); //TODO WALL OR TRANSFER
 
+                return true;
+            }
+        });
+
+        FrontalLobe.addMacro("auto - spec", new FrontalLobe.Macro() {
+            @Override
+            public void start() {
+                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+            }
+
+            @Override
+            public boolean loop(double v) {
                 return true;
             }
         });

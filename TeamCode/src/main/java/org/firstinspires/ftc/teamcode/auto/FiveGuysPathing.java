@@ -1,35 +1,27 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
-
-import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.shprobotics.pestocore.processing.FrontalLobe;
-import com.shprobotics.pestocore.processing.MotorCortex;
+import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.PestoFTCConfig;
 import org.firstinspires.ftc.teamcode.constants.FConstants;
 import org.firstinspires.ftc.teamcode.constants.LConstants;
-import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
-import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
-@Config
-@Autonomous(name = "***Five Guys***")
-public class FiveGuys extends BaseRobot {
+@Autonomous(name = "*** 5+0 Pathing ***")
+public class FiveGuysPathing extends OpMode {
+
     private Follower follower;
+    private Timer pathTimer, opmodeTimer;
 
     private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
 
-    private final Pose scorePreloadPose = new Pose(28, 66, Math.toRadians(0));
+    private final Pose scorePreloadPose = new Pose(34, 66, Math.toRadians(0));
 
     private final Pose pushOnePose = new Pose(16, 25, Math.toRadians(0));
     private final Pose pushOneControlPoint1 = new Pose(20, 38);
@@ -87,7 +79,6 @@ public class FiveGuys extends BaseRobot {
             grabThree, depositThree,
             grabFour, depositFour,
             grabBucket, depositBucket;
-
     private PathState pathState;
 
     public enum PathState {
@@ -107,8 +98,8 @@ public class FiveGuys extends BaseRobot {
         BUCKET,
         PARK;
     }
-
     public void buildPaths() {
+
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePreloadPose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePreloadPose.getHeading());
 
@@ -187,213 +178,154 @@ public class FiveGuys extends BaseRobot {
                 new Point(scoreBucketPose)));
         depositBucket.setLinearHeadingInterpolation(grabBucketPose.getHeading(), scoreBucketPose.getHeading());
 
-    }
 
+    }
     public void autonomousPathUpdate() {
         switch (pathState) {
             case PRELOAD_TO_SUB:
+                /*include arm up*/
+
                 follower.followPath(scorePreload);
+                setPathState(PathState.SUB_TO_PUSH);
                 break;
             case SUB_TO_PUSH:
-                follower.followPath(pushOne);
+                if(!follower.isBusy()) {
+                    /*release spec*/
+
+                    follower.followPath(pushOne);
+                    setPathState(PathState.PUSH_TWO);
+                }
                 break;
             case PUSH_TWO:
-                follower.followPath(pushTwo);
+                if(!follower.isBusy()) {
+                    follower.followPath(pushTwo);
+                    setPathState(PathState.PUSH_THREE);
+                }
                 break;
             case PUSH_THREE:
-                follower.followPath(pushThree);
+                if(!follower.isBusy()) {
+                    follower.followPath(pushThree);
+                    setPathState(PathState.DEPOSIT_ONE);
+                    /*maybe add grabOne state*/
+                }
                 break;
             case DEPOSIT_ONE:
-                follower.followPath(depositOne);
+                if(!follower.isBusy()) {
+                    /*raise arm*/
+                    follower.followPath(depositOne);
+                    setPathState(PathState.GRAB_TWO);
+                }
                 break;
+
             case GRAB_TWO:
-                follower.followPath(grabTwo);
+                if(!follower.isBusy()) {
+                    /*prep arm for grab*/
+                    follower.followPath(grabTwo);
+                    setPathState(PathState.DEPOSIT_TWO);
+                }
                 break;
+
             case DEPOSIT_TWO:
-                follower.followPath(depositTwo);
+                if(!follower.isBusy()) {
+                    /*raise arm*/
+                    follower.followPath(depositTwo);
+                    setPathState(PathState.GRAB_THREE);
+                }
                 break;
+
             case GRAB_THREE:
-                follower.followPath(grabThree);
+                if(!follower.isBusy()) {
+                    /*prep arm for grab*/
+                    follower.followPath(grabThree);
+                    setPathState(PathState.DEPOSIT_THREE);
+                }
                 break;
+
             case DEPOSIT_THREE:
-                follower.followPath(depositThree);
+                if(!follower.isBusy()) {
+                    /*raise arm*/
+                    follower.followPath(depositThree);
+                    setPathState(PathState.GRAB_FOUR);
+                }
                 break;
+
             case GRAB_FOUR:
-                follower.followPath(grabFour);
+                if(!follower.isBusy()) {
+                    /*prep arm for grab*/
+                    follower.followPath(grabFour);
+                    setPathState(PathState.DEPOSIT_FOUR);
+                }
                 break;
+
             case DEPOSIT_FOUR:
-                follower.followPath(depositFour);
+                if(!follower.isBusy()) {
+                    /*raise arm*/
+                    follower.followPath(depositFour);
+                    setPathState(PathState.GRAB_BUCKET);
+                }
                 break;
+
             case GRAB_BUCKET:
-                follower.followPath(grabBucket);
+                if(!follower.isBusy()) {
+                    /*prep arm for grab*/
+                    follower.followPath(grabBucket);
+                    setPathState(PathState.BUCKET);
+                }
                 break;
+
             case BUCKET:
-                follower.followPath(depositBucket);
+                if(!follower.isBusy()) {
+                    /*raise arm*/
+                    follower.followPath(depositBucket);
+                    setPathState(PathState.PARK);
+                }
                 break;
+
         }
     }
 
-    public boolean autonomousRobotUpdate(double v) {
-        switch (pathState) {
-            case PRELOAD_TO_SUB:
-                slideSubsystem.setState(SPEC); // SPEC-ish
-
-                if (v < 0.1)
-                    return false;
-
-                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
-
-                if (v < 0.9)
-                    return false;
-
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.SPEC);
-
-                if (v < 1.5)
-                    return false;
-
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.SUB_TO_PUSH;
-                return true;
-            case SUB_TO_PUSH:
-                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
-
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.PUSH_TWO;
-                return true;
-            case PUSH_TWO:
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.PUSH_THREE;
-                return true;
-            case PUSH_THREE:
-                extendoSubsystem.enable();
-                if (!FrontalLobe.hasMacro(TransferState.SPEC_WALL_FROM_RUNG.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.SPEC_WALL_FROM_RUNG.getMacroAlias());
-
-                if (follower.isBusy())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
-
-
-                pathState = PathState.DEPOSIT_ONE;
-                return true;
-            case DEPOSIT_ONE:
-
-                if (follower.isBusy())
-                    return false;
-
-                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
-
-                pathState = PathState.GRAB_TWO;
-                return true;
-            case GRAB_TWO:
-                /*prep arm for grab*/
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.DEPOSIT_TWO;
-                return true;
-            case DEPOSIT_TWO:
-                /*raise arm*/
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.GRAB_THREE;
-                return true;
-            case GRAB_THREE:
-                /*prep arm for grab*/
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.DEPOSIT_THREE;
-                return true;
-            case DEPOSIT_THREE:
-                /*raise arm*/
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.GRAB_FOUR;
-                return true;
-            case GRAB_FOUR:
-                /*prep arm for grab*/
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.DEPOSIT_FOUR;
-                return true;
-            case DEPOSIT_FOUR:
-                /*raise arm*/
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.GRAB_BUCKET;
-                return true;
-            case GRAB_BUCKET:
-                /*prep arm for grab*/
-                if (follower.isBusy())
-                    return false;
-
-                pathState = PathState.BUCKET;
-                return true;
-            case BUCKET:
-                /*raise arm*/
-                return !follower.isBusy();
-        }
-
-        return false;
+    public void setPathState(PathState pState) {
+        pathState = pState;
+        pathTimer.resetTimer();
     }
 
     @Override
-    public void runOpMode() {
-        PestoFTCConfig.initializePinpoint = false;
+    public void loop() {
 
-        super.runOpMode();
+        // These loop the movements of the robot
+        follower.update();
+        autonomousPathUpdate();
 
-        transferState = TransferState.AUTO_SPEC_START;
-        FrontalLobe.removeMacros("spec");
-        FrontalLobe.useMacro(transferState.getMacroAlias());
+        // Feedback to Driver Hub
+        telemetry.addData("path state", pathState);
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
+        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.update();
+    }
+
+    @Override
+    public void init() {
+        pathTimer = new Timer();
+        opmodeTimer = new Timer();
+        opmodeTimer.resetTimer();
 
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         buildPaths();
+    }
 
-        pathState = PathState.PRELOAD_TO_SUB;
+    @Override
+    public void init_loop() {}
 
-        waitForStart();
+    @Override
+    public void start() {
+        opmodeTimer.resetTimer();
+        setPathState(PathState.PRELOAD_TO_SUB);
+    }
 
-        double whenChangePath = System.nanoTime();
-        autonomousPathUpdate();
-
-        while (opModeIsActive() && !isStopRequested()) {
-            MotorCortex.update();
-            FrontalLobe.update();
-            slideSubsystem.update();
-
-            follower.update();
-
-            boolean pathSegmentFinished = autonomousRobotUpdate((System.nanoTime() - whenChangePath) / 1E9);
-            if (pathSegmentFinished) {
-                autonomousPathUpdate();
-                whenChangePath = System.nanoTime();
-            }
-
-            telemetry.addData("path state", pathState);
-            telemetry.addData("x", follower.getPose().getX());
-            telemetry.addData("y", follower.getPose().getY());
-            telemetry.addData("heading", follower.getPose().getHeading());
-            telemetry.update();
-        }
+    @Override
+    public void stop() {
     }
 }
 

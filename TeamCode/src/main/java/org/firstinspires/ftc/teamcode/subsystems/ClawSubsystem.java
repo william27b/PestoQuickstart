@@ -27,7 +27,7 @@ public class ClawSubsystem {
     public ClawSubsystem() {
         this.claw = MotorCortex.getServo("claw");
         this.breakbeam = (DigitalChannel) MotorCortex.hardwareMap.get("beam");
-        this.state = ClawState.OPEN;
+        this.state = ClawState.CLOSED;
 
         this.update();
     }

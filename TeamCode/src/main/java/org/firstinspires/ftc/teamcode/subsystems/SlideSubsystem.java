@@ -74,7 +74,7 @@ public class SlideSubsystem {
         return this.botSlide.getVelocity();
     }
 
-    private void update() {
+    public void update() {
         currentVelocity = (currentVelocity * 0.9) + (this.getVelocity());
 
         if (this.state == DOWN && currentVelocity > 50) {
@@ -90,8 +90,8 @@ public class SlideSubsystem {
     }
 
     public void enable() {
-        this.botSlide.setPowerResult(0.6);
-        this.topSlide.setPowerResult(0.6);
+        this.botSlide.setPowerResult(0.8);
+        this.topSlide.setPowerResult(0.8);
     }
 
     public void disable() {

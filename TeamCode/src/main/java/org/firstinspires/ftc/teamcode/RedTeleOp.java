@@ -12,6 +12,7 @@ import static com.shprobotics.pestocore.devices.GamepadKey.Y;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.RELEASE_FROM_SPEC;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.SPEC_WALL;
+import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.SPEC_WALL_FROM_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.OUT;
 
@@ -30,6 +31,7 @@ import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 public class RedTeleOp extends BaseRobot {
     @Override
     public void runOpMode() {
+        PestoFTCConfig.initializePinpoint = true;
         boolean justRed = true;
 
         super.runOpMode();
@@ -59,14 +61,17 @@ public class RedTeleOp extends BaseRobot {
             }
 
             // SPEC HIGH RUNG STATES
-            if (gamepadInterface1.isKeyDown(Y) || (transferState == SPEC_WALL && !clawSubsystem.breakbeam.getState())) {
+            if (gamepadInterface1.isKeyDown(Y) || ((transferState == SPEC_WALL || transferState == SPEC_WALL_FROM_RUNG) && !clawSubsystem.breakbeam.getState())) {
                 switch (transferState) {
                     case RELEASE_FROM_SPEC:
                     case RELEASE_FROM_SAMPLE:
                     case BUCKET_TRANSFERRING:
-                    case HIGH_RUNG:
                         transferState = SPEC_WALL;
                         break;
+                    case HIGH_RUNG:
+                        transferState = SPEC_WALL_FROM_RUNG;
+                        break;
+                    case SPEC_WALL_FROM_RUNG:
                     case SPEC_WALL:
                         transferState = HIGH_RUNG;
                         break;
@@ -159,6 +164,7 @@ public class RedTeleOp extends BaseRobot {
 
             if ((intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORED || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING_EMPTY || intakeSubsystem.getState() == IntakeSubsystem.IntakeState.STORING) && gamepadInterface1.isKeyDown(RIGHT_BUMPER)) {
                 switch (transferState) {
+                    case SPEC_WALL_FROM_RUNG:
                     case SPEC_WALL:
                         transferState = RELEASE_FROM_SPEC;
                         break;
@@ -197,6 +203,7 @@ public class RedTeleOp extends BaseRobot {
             else
                 gamepad1.setLedColor(255, 255, 0, Integer.MAX_VALUE);
 
+            telemetry.addData("transfer state", transferState);
             telemetry.addData("velocity", slideSubsystem.getVelocity());
             telemetry.addData("position", slideSubsystem.getPosition());
             telemetry.update();

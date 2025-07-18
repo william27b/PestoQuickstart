@@ -30,6 +30,7 @@ import com.shprobotics.pestocore.processing.PestoConfig;
 @PestoConfig()
 public class PestoFTCConfig implements ConfigInterface {
     public static boolean initialized = false;
+    public static boolean initializePinpoint = false;
 
     public static double endpointP = 0.01;
     public static double endpointI = 0.0;
@@ -87,26 +88,29 @@ public class PestoFTCConfig implements ConfigInterface {
 
         driveController.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        DeterministicTracker tracker = new GoBildaPinpointTracker.TrackerBuilder(
-                hardwareMap,
-                "pinpoint"
-        )
-                .setXEncoderDirection(Odometry.xDirection)
-                .setYEncoderDirection(Odometry.yDirection)
-                .setEncoderResolution(Odometry.encoderResolution)
-                .setForwardOffset(Odometry.FORWARD_OFFSET)
-                .setOdometryWidth(Odometry.ODOMETRY_WIDTH)
-                .build();
+        if (initializePinpoint) {
+            DeterministicTracker tracker = new GoBildaPinpointTracker.TrackerBuilder(
+                    hardwareMap,
+                    "pinpoint"
+            )
+                    .setXEncoderDirection(Odometry.xDirection)
+                    .setYEncoderDirection(Odometry.yDirection)
+                    .setEncoderResolution(Odometry.encoderResolution)
+                    .setForwardOffset(Odometry.FORWARD_OFFSET)
+                    .setOdometryWidth(Odometry.ODOMETRY_WIDTH)
+                    .build();
 
-        TeleOpController teleOpController = new TeleOpController(driveController, hardwareMap);
+            TeleOpController teleOpController = new TeleOpController(driveController, hardwareMap);
 
-        teleOpController.setSpeedController(gamepad -> 1.0);
+            teleOpController.setSpeedController(gamepad -> 1.0);
 
-        teleOpController.counteractCentripetalForce(tracker, Kinematics.MAX_VELOCITY);
+            teleOpController.counteractCentripetalForce(tracker, Kinematics.MAX_VELOCITY);
+
+            FrontalLobe.teleOpController = teleOpController;
+            FrontalLobe.tracker = tracker;
+        }
 
         FrontalLobe.driveController = driveController;
-        FrontalLobe.teleOpController = teleOpController;
-        FrontalLobe.tracker = tracker;
     }
 
     public static PathFollower.PathFollowerBuilder createPathFollower(PathContainer pathContainer) {

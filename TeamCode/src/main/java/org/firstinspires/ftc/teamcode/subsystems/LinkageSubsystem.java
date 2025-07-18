@@ -14,9 +14,9 @@ public class LinkageSubsystem {
         OVEREXTENDED (0.5), //from 0.58 to 0.5 for issue #14
         RETRACTED (1.00),
         INTAKE (0.98),
-        TRANSFER(0.92),
+        TRANSFER(0.90),
         SPEC (0.65),
-        WALL (0.88); //from 0.9 to 0.88 for issue #14
+        WALL (0.85);
 
         LinkageState(double position) {
             this.position = position;
