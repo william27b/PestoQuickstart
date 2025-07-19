@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -8,6 +9,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.shprobotics.pestocore.processing.FrontalLobe;
@@ -29,21 +31,21 @@ public class FiveGuys extends BaseRobot {
 
     private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
 
-    private final Pose scorePreloadPose = new Pose(28, 66, Math.toRadians(0));
+    private final Pose scorePreloadPose = new Pose(28, 74, Math.toRadians(0));
 
-    private final Pose pushOnePose = new Pose(16, 25, Math.toRadians(0));
+    private final Pose pushOnePose = new Pose(25, 23, Math.toRadians(0));
     private final Pose pushOneControlPoint1 = new Pose(20, 38);
-    private final Pose pushOneControlPoint2 = new Pose(35, 32);
+    private final Pose pushOneControlPoint2 = new Pose(30, 5);
     private final Pose pushOneControlPoint3 = new Pose(52, 40);
     private final Pose pushOneControlPoint4 = new Pose(47, 50);
     private final Pose pushOneControlPoint5 = new Pose(76, 12);
-    private final Pose pushOneControlPoint6 = new Pose(54, 30);
+    private final Pose pushOneControlPoint6 = new Pose(54, 25);
 
-    private final Pose pushTwoPose = new Pose(19, 15, Math.toRadians(0));
+    private final Pose pushTwoPose = new Pose(25, 15, Math.toRadians(0));
     private final Pose pushTwoControlPoint1 = new Pose(58, 36);
-    private final Pose pushTwoControlPoint2 = new Pose(70, 20);
+    private final Pose pushTwoControlPoint2 = new Pose(58, 19);
     private final Pose pushTwoControlPoint3 = new Pose(38, 35);
-    private final Pose pushTwoControlPoint4 = new Pose(84, 11);
+    private final Pose pushTwoControlPoint4 = new Pose(72, 10);
     private final Pose pushTwoControlPoint5 = new Pose(44, 13);
 
     private final Pose pushThreePose = new Pose(9, 8, Math.toRadians(0));
@@ -51,51 +53,51 @@ public class FiveGuys extends BaseRobot {
     private final Pose pushThreeControlPoint2 = new Pose(76, 1);
     private final Pose pushThreeControlPoint3 = new Pose(36, 9);
 
-    private final Pose scoreOnePose = new Pose(34, 66, Math.toRadians(0));
+    private final Pose scoreOnePose = new Pose(34, 72, Math.toRadians(0));
     private final Pose scoreOneControlPoint = new Pose(14, 62);
 
-    private final Pose grabTwoPose = new Pose(7, 32, Math.toRadians(0));
+    private final Pose grabTwoPose = new Pose(7, 35, Math.toRadians(0));
     private final Pose grabTwoControlPoint1 = new Pose(17, 62);
     private final Pose grabTwoControlPoint2 = new Pose(20, 30);
 
-    private final Pose scoreTwoPose = new Pose(34, 66, Math.toRadians(0));
+    private final Pose scoreTwoPose = new Pose(34, 70.5, Math.toRadians(0));
     private final Pose scoreTwoControlPoint = new Pose(22, 62);
 
-    private final Pose grabThreePose = new Pose(7, 32, Math.toRadians(0));
+    private final Pose grabThreePose = new Pose(7, 35, Math.toRadians(0));
     private final Pose grabThreeControlPoint1 = new Pose(17, 62);
     private final Pose grabThreeControlPoint2 = new Pose(20, 30);
 
-    private final Pose scoreThreePose = new Pose(34, 66, Math.toRadians(0));
+    private final Pose scoreThreePose = new Pose(34, 69, Math.toRadians(0));
     private final Pose scoreThreeControlPoint = new Pose(22, 62);
 
-    private final Pose grabFourPose = new Pose(7, 32, Math.toRadians(0));
+    private final Pose grabFourPose = new Pose(7, 35, Math.toRadians(0));
     private final Pose grabFourControlPoint1 = new Pose(17, 62);
     private final Pose grabFourControlPoint2 = new Pose(20, 30);
 
-    private final Pose scoreFourPose = new Pose(34, 66, Math.toRadians(0));
+    private final Pose scoreFourPose = new Pose(34, 68, Math.toRadians(0));
     private final Pose scoreFourControlPoint = new Pose(22, 62);
 
-    private final Pose grabBucketPose = new Pose(7, 32, Math.toRadians(0));
+    private final Pose grabBucketPose = new Pose(7, 35, Math.toRadians(0));
     private final Pose grabBucketControlPoint1 = new Pose(17, 62);
     private final Pose grabBucketControlPoint2 = new Pose(20, 30);
 
     private final Pose scoreBucketPose = new Pose(13, 130, Math.toRadians(315));
     private final Pose scoreBucketControlPoint = new Pose(30, 118);
 
-    private Path scorePreload, pushOne, pushTwo, pushThree, depositOne,
+    private Path scorePreload, depositOne,
             grabTwo, depositTwo,
             grabThree, depositThree,
             grabFour, depositFour,
             grabBucket, depositBucket;
+
+    private PathChain pushChain;
 
     private PathState pathState;
 
     public enum PathState {
         PRELOAD_TO_SUB,
         SUB_TO_PUSH,
-        PUSH_TWO,
-        PUSH_THREE,
-        //GRAB_ONE,
+        PUSH_CHAIN,
         DEPOSIT_ONE,
         GRAB_TWO,
         DEPOSIT_TWO,
@@ -112,31 +114,34 @@ public class FiveGuys extends BaseRobot {
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePreloadPose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePreloadPose.getHeading());
 
-        pushOne = new Path(new BezierCurve(new Point(scorePreloadPose),
-                new Point(pushOneControlPoint1),
-                new Point(pushOneControlPoint2),
-                new Point(pushOneControlPoint3),
-                new Point(pushOneControlPoint4),
-                new Point(pushOneControlPoint5),
-                new Point(pushOneControlPoint6),
-                new Point(pushOnePose)));
-        pushOne.setLinearHeadingInterpolation(scorePreloadPose.getHeading(), pushOnePose.getHeading());
-
-        pushTwo = new Path(new BezierCurve(new Point(pushOnePose),
-                new Point(pushTwoControlPoint1),
-                new Point(pushTwoControlPoint2),
-                new Point(pushTwoControlPoint3),
-                new Point(pushTwoControlPoint4),
-                new Point(pushTwoControlPoint5),
-                new Point(pushTwoPose)));
-        pushTwo.setLinearHeadingInterpolation(pushOnePose.getHeading(), pushTwoPose.getHeading());
-
-        pushThree = new Path(new BezierCurve(new Point(pushTwoPose),
-                new Point(pushThreeControlPoint1),
-                new Point(pushThreeControlPoint2),
-                new Point(pushThreeControlPoint3),
-                new Point(pushThreePose)));
-        pushThree.setLinearHeadingInterpolation(pushTwoPose.getHeading(), pushThreePose.getHeading());
+        pushChain = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePreloadPose),
+                    new Point(pushOneControlPoint1),
+                    new Point(pushOneControlPoint2),
+                    new Point(pushOneControlPoint3),
+                    new Point(pushOneControlPoint4),
+                    new Point(pushOneControlPoint5),
+                    new Point(pushOneControlPoint6),
+                    new Point(pushOnePose)))
+                .setLinearHeadingInterpolation(scorePreloadPose.getHeading(), pushOnePose.getHeading())
+                .setPathEndTimeoutConstraint(100)
+                .addPath(new BezierCurve(new Point(pushOnePose),
+                    new Point(pushTwoControlPoint1),
+                    new Point(pushTwoControlPoint2),
+                    new Point(pushTwoControlPoint3),
+                    new Point(pushTwoControlPoint4),
+                    new Point(pushTwoControlPoint5),
+                    new Point(pushTwoPose)))
+                .setLinearHeadingInterpolation(pushOnePose.getHeading(), pushTwoPose.getHeading())
+                .setPathEndTimeoutConstraint(100)
+                .addPath(new BezierCurve(new Point(pushTwoPose),
+                    new Point(pushThreeControlPoint1),
+                    new Point(pushThreeControlPoint2),
+                    new Point(pushThreeControlPoint3),
+                    new Point(pushThreePose)))
+                .setLinearHeadingInterpolation(pushTwoPose.getHeading(), pushThreePose.getHeading())
+                .setPathEndTimeoutConstraint(1000)
+                .build();
 
         depositOne = new Path(new BezierCurve(new Point(pushThreePose),
                 new Point(scoreOneControlPoint),
@@ -190,18 +195,13 @@ public class FiveGuys extends BaseRobot {
     }
 
     public void autonomousPathUpdate() {
+        slideSubsystem.update();
         switch (pathState) {
             case PRELOAD_TO_SUB:
                 follower.followPath(scorePreload);
                 break;
             case SUB_TO_PUSH:
-                follower.followPath(pushOne);
-                break;
-            case PUSH_TWO:
-                follower.followPath(pushTwo);
-                break;
-            case PUSH_THREE:
-                follower.followPath(pushThree);
+                follower.followPath(pushChain);
                 break;
             case DEPOSIT_ONE:
                 follower.followPath(depositOne);
@@ -234,8 +234,11 @@ public class FiveGuys extends BaseRobot {
     }
 
     public boolean autonomousRobotUpdate(double v) {
+        slideSubsystem.update();
         switch (pathState) {
             case PRELOAD_TO_SUB:
+                extendoSubsystem.enable();
+
                 slideSubsystem.setState(SPEC); // SPEC-ish
 
                 if (v < 0.1)
@@ -257,32 +260,22 @@ public class FiveGuys extends BaseRobot {
                 pathState = PathState.SUB_TO_PUSH;
                 return true;
             case SUB_TO_PUSH:
-                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
 
-                if (follower.isBusy())
+                if (v < 0.5) {
+                    clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
                     return false;
+                }
 
-                pathState = PathState.PUSH_TWO;
-                return true;
-            case PUSH_TWO:
-                if (follower.isBusy())
-                    return false;
+                slideSubsystem.setState(DOWN);
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
+                slideSubsystem.update();
 
-                pathState = PathState.PUSH_THREE;
-                return true;
-            case PUSH_THREE:
-                extendoSubsystem.enable();
-                if (!FrontalLobe.hasMacro(TransferState.SPEC_WALL_FROM_RUNG.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.SPEC_WALL_FROM_RUNG.getMacroAlias());
-
-                if (follower.isBusy())
+                if (follower.isBusy() || clawSubsystem.breakbeam.getState())
                     return false;
 
                 if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
                     FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
-
 
                 pathState = PathState.DEPOSIT_ONE;
                 return true;
@@ -292,29 +285,48 @@ public class FiveGuys extends BaseRobot {
                     return false;
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
 
                 pathState = PathState.GRAB_TWO;
                 return true;
             case GRAB_TWO:
                 /*prep arm for grab*/
-                if (follower.isBusy())
+
+                if (v < 0.5)
                     return false;
+
+                slideSubsystem.setState(DOWN);
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
+                slideSubsystem.update();
+
+                if (follower.isBusy() || clawSubsystem.breakbeam.getState())
+                    return false;
+
+                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
+                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
 
                 pathState = PathState.DEPOSIT_TWO;
                 return true;
             case DEPOSIT_TWO:
                 /*raise arm*/
+
                 if (follower.isBusy())
                     return false;
+
+                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
+                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
 
                 pathState = PathState.GRAB_THREE;
                 return true;
             case GRAB_THREE:
                 /*prep arm for grab*/
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
                 if (follower.isBusy())
                     return false;
+
+                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
+                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
 
                 pathState = PathState.DEPOSIT_THREE;
                 return true;
@@ -323,12 +335,19 @@ public class FiveGuys extends BaseRobot {
                 if (follower.isBusy())
                     return false;
 
+                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
+                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+
                 pathState = PathState.GRAB_FOUR;
                 return true;
             case GRAB_FOUR:
                 /*prep arm for grab*/
                 if (follower.isBusy())
                     return false;
+
+                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
+                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
 
                 pathState = PathState.DEPOSIT_FOUR;
                 return true;
@@ -337,6 +356,10 @@ public class FiveGuys extends BaseRobot {
                 if (follower.isBusy())
                     return false;
 
+                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
+                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+
                 pathState = PathState.GRAB_BUCKET;
                 return true;
             case GRAB_BUCKET:
@@ -344,11 +367,23 @@ public class FiveGuys extends BaseRobot {
                 if (follower.isBusy())
                     return false;
 
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+
                 pathState = PathState.BUCKET;
                 return true;
             case BUCKET:
                 /*raise arm*/
-                return !follower.isBusy();
+                if(follower.getPose().getY() > 72)
+                    if (!FrontalLobe.hasMacro(TransferState.AUTO_BUCKET_DEPO.getMacroAlias()))
+                        FrontalLobe.useMacro(TransferState.AUTO_BUCKET_DEPO.getMacroAlias());
+
+                if (follower.isBusy())
+                    return false;
+
+                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SAMPLE.getMacroAlias()))
+                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SAMPLE.getMacroAlias());
+
+                return true;
         }
 
         return false;

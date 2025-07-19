@@ -11,12 +11,14 @@ public class SlideSubsystem {
     public final CortexLinkedMotor botSlide;
     public final CortexLinkedMotor topSlide;
     private SlideState state;
-
+    private boolean autoOverride, climb;
     private double currentVelocity;
 
     public enum SlideState {
         DOWN (0),
+        CLIMB(-50),
         MEDIUM(-400),
+        CLIMB_UP(-600),
         SPEC (-865),
         UP (-1250);
 
@@ -50,6 +52,9 @@ public class SlideSubsystem {
         this.topSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         this.currentVelocity = 0.0;
+
+        this.autoOverride = false;
+        this.climb = false;
     }
 
     public void setState(SlideState state) {
@@ -77,13 +82,20 @@ public class SlideSubsystem {
     public void update() {
         currentVelocity = (currentVelocity * 0.9) + (this.getVelocity());
 
-        if (this.state == DOWN && currentVelocity > 50) {
+        if(climb){
+            this.botSlide.setPowerResult(1.0);
+            this.topSlide.setPowerResult(1.0);
+        } else if (this.state == DOWN && currentVelocity > 250 && !autoOverride) {
             this.botSlide.setPowerResult(0.0);
             this.topSlide.setPowerResult(0.0);
         } else {
+            autoOverride = true;
             this.botSlide.setPowerResult(0.6);
             this.topSlide.setPowerResult(0.6);
         }
+
+        if(getPosition() < 10)
+            autoOverride = false;
 
         this.botSlide.setTargetPosition(this.state.getPosition());
         this.topSlide.setTargetPosition(this.state.getPosition());
@@ -97,5 +109,9 @@ public class SlideSubsystem {
     public void disable() {
         this.botSlide.setPowerResult(0.0);
         this.topSlide.setPowerResult(0.0);
+    }
+
+    public void climb(){
+        this.climb = true;
     }
 }
