@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.AUTO_DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,10 +17,11 @@ public class SlideSubsystem {
 
     public enum SlideState {
         DOWN (0),
+        AUTO_DOWN(0),
         CLIMB(-50),
         MEDIUM(-400),
         CLIMB_UP(-600),
-        SPEC (-865),
+        SPEC (-850),
         UP (-1250);
 
         SlideState(int position) {
@@ -51,9 +53,9 @@ public class SlideSubsystem {
         this.botSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         this.topSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        this.autoOverride = false;
         this.currentVelocity = 0.0;
 
-        this.autoOverride = false;
         this.climb = false;
     }
 
@@ -85,20 +87,27 @@ public class SlideSubsystem {
         if(climb){
             this.botSlide.setPowerResult(1.0);
             this.topSlide.setPowerResult(1.0);
-        } else if (this.state == DOWN && currentVelocity > 250 && !autoOverride) {
+        } else if (this.state == DOWN || (this.state == AUTO_DOWN && Math.abs(currentVelocity) > 500 && !autoOverride)) {
             this.botSlide.setPowerResult(0.0);
             this.topSlide.setPowerResult(0.0);
-        } else {
+        } else if (this.state == AUTO_DOWN){
             autoOverride = true;
-            this.botSlide.setPowerResult(0.6);
-            this.topSlide.setPowerResult(0.6);
+            this.botSlide.setPowerResult(0.8);
+            this.topSlide.setPowerResult(0.8);
+        } else {
+            this.botSlide.setPowerResult(0.7);
+            this.topSlide.setPowerResult(0.7);
         }
 
-        if(getPosition() < 10)
+        if(botSlide.getCurrentPosition() > -10)
             autoOverride = false;
 
         this.botSlide.setTargetPosition(this.state.getPosition());
         this.topSlide.setTargetPosition(this.state.getPosition());
+    }
+
+    public double getCurrentPower(){
+        return botSlide.getPower();
     }
 
     public void enable() {
@@ -111,7 +120,7 @@ public class SlideSubsystem {
         this.topSlide.setPowerResult(0.0);
     }
 
-    public void climb(){
-        this.climb = true;
+    public void climb(boolean status){
+        this.climb = status;
     }
 }

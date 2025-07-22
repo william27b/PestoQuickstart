@@ -102,7 +102,7 @@ public class IntakeSubsystem {
         telemetry.addData("a", colorSensor.alpha());
     }
 
-    private void update() {
+    public void update() {
         this.intake.setPowerResult(this.state.getPower());
         this.dropdown.setPositionResult(this.state.getDropdownPosition());
 

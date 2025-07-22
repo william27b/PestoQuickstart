@@ -55,7 +55,7 @@ public class RedTeleOp extends BaseRobot {
             MotorCortex.update();
             FrontalLobe.update();
 
-            teleOpController.driveFieldCentric(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            teleOpController.driveFieldCentric(0.9*-gamepad1.left_stick_y, 0.9*gamepad1.left_stick_x, 0.9*gamepad1.right_stick_x);
 
             Vector2D currentPosition = tracker.getCurrentPosition().asVector();
             telemetry.addData("X", currentPosition.getX());
@@ -230,7 +230,7 @@ public class RedTeleOp extends BaseRobot {
                         transferState = CLIMB_SLIDES_UP;
                         break;
                     case CLIMB_SLIDES_UP:
-                        slideSubsystem.climb();
+                        slideSubsystem.climb(true);
                         climbSubsystem.setPTOState(ClimbSubsystem.PTOState.NEUTRAL);
                         slideSubsystem.setState(CLIMB_UP);
                         transferState = CLIMB_SLIDES_DOWN;

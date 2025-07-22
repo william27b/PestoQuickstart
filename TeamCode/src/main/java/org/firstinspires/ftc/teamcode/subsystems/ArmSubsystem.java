@@ -13,7 +13,7 @@ public class ArmSubsystem {
         WALL (0.04),
         BUCKET (0.16),
         CLIMB(0.35),
-        DEPOSIT (0.76),
+        DEPOSIT (0.74),
         TRANSFER (0.98);
 
         ArmState(double position) {
@@ -48,7 +48,7 @@ public class ArmSubsystem {
         return this.state;
     }
 
-    private void update() {
+    public void update() {
         this.armLeft.setPosition(this.state.getPosition());
         this.armRight.setPosition(this.state.getPosition());
     }

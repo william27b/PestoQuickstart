@@ -53,7 +53,7 @@ public class ExtendoSubsystem {
         return this.extendo.getCurrentPosition();
     }
 
-    private void update() {
+    public void update() {
         this.extendo.setTargetPosition(this.state.getPosition());
     }
 

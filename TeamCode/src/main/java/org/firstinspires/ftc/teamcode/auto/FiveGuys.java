@@ -41,50 +41,51 @@ public class FiveGuys extends BaseRobot {
     private final Pose pushOneControlPoint5 = new Pose(76, 12);
     private final Pose pushOneControlPoint6 = new Pose(54, 25);
 
-    private final Pose pushTwoPose = new Pose(25, 15, Math.toRadians(0));
+    private final Pose pushTwoPose = new Pose(30, 15, Math.toRadians(0));
     private final Pose pushTwoControlPoint1 = new Pose(58, 36);
     private final Pose pushTwoControlPoint2 = new Pose(58, 19);
     private final Pose pushTwoControlPoint3 = new Pose(38, 35);
     private final Pose pushTwoControlPoint4 = new Pose(72, 10);
     private final Pose pushTwoControlPoint5 = new Pose(44, 13);
 
-    private final Pose pushThreePose = new Pose(9, 8, Math.toRadians(0));
+    private final Pose pushThreePose = new Pose(40, 6.5, Math.toRadians(0));
     private final Pose pushThreeControlPoint1 = new Pose(62, 24);
     private final Pose pushThreeControlPoint2 = new Pose(76, 1);
-    private final Pose pushThreeControlPoint3 = new Pose(36, 9);
+    private final Pose pushThreeControlPoint3 = new Pose(45, 6.5);
 
     private final Pose scoreOnePose = new Pose(34, 72, Math.toRadians(0));
     private final Pose scoreOneControlPoint = new Pose(14, 62);
 
-    private final Pose grabTwoPose = new Pose(7, 35, Math.toRadians(0));
+    private final Pose grabTwoPose = new Pose(14.5, 40, Math.toRadians(0));
     private final Pose grabTwoControlPoint1 = new Pose(17, 62);
-    private final Pose grabTwoControlPoint2 = new Pose(20, 30);
+    private final Pose grabTwoControlPoint2 = new Pose(20, 40);
 
     private final Pose scoreTwoPose = new Pose(34, 70.5, Math.toRadians(0));
     private final Pose scoreTwoControlPoint = new Pose(22, 62);
 
-    private final Pose grabThreePose = new Pose(7, 35, Math.toRadians(0));
+    private final Pose grabThreePose = new Pose(14.5, 40, Math.toRadians(0));
     private final Pose grabThreeControlPoint1 = new Pose(17, 62);
-    private final Pose grabThreeControlPoint2 = new Pose(20, 30);
+    private final Pose grabThreeControlPoint2 = new Pose(20, 40);
 
     private final Pose scoreThreePose = new Pose(34, 69, Math.toRadians(0));
     private final Pose scoreThreeControlPoint = new Pose(22, 62);
 
-    private final Pose grabFourPose = new Pose(7, 35, Math.toRadians(0));
+    private final Pose grabFourPose = new Pose(14.5, 40, Math.toRadians(0));
     private final Pose grabFourControlPoint1 = new Pose(17, 62);
-    private final Pose grabFourControlPoint2 = new Pose(20, 30);
+    private final Pose grabFourControlPoint2 = new Pose(20, 40);
 
     private final Pose scoreFourPose = new Pose(34, 68, Math.toRadians(0));
     private final Pose scoreFourControlPoint = new Pose(22, 62);
 
-    private final Pose grabBucketPose = new Pose(7, 35, Math.toRadians(0));
+    private final Pose grabBucketPose = new Pose(14.5, 40, Math.toRadians(0));
     private final Pose grabBucketControlPoint1 = new Pose(17, 62);
-    private final Pose grabBucketControlPoint2 = new Pose(20, 30);
+    private final Pose grabBucketControlPoint2 = new Pose(20, 40);
 
-    private final Pose scoreBucketPose = new Pose(13, 130, Math.toRadians(315));
+    private final Pose scoreBucketPose = new Pose(14, 130, Math.toRadians(315));
     private final Pose scoreBucketControlPoint = new Pose(30, 118);
 
-    private Path scorePreload, depositOne,
+    private Path scorePreload,
+            grabOne, depositOne,
             grabTwo, depositTwo,
             grabThree, depositThree,
             grabFour, depositFour,
@@ -97,7 +98,7 @@ public class FiveGuys extends BaseRobot {
     public enum PathState {
         PRELOAD_TO_SUB,
         SUB_TO_PUSH,
-        PUSH_CHAIN,
+        GRAB_ONE,
         DEPOSIT_ONE,
         GRAB_TWO,
         DEPOSIT_TWO,
@@ -142,6 +143,15 @@ public class FiveGuys extends BaseRobot {
                 .setLinearHeadingInterpolation(pushTwoPose.getHeading(), pushThreePose.getHeading())
                 .setPathEndTimeoutConstraint(1000)
                 .build();
+
+//        grabOne = new Path(new BezierCurve(new Point(pushTwoPose),
+//                new Point(pushThreeControlPoint1),
+//                new Point(pushThreeControlPoint2),
+//                new Point(pushThreeControlPoint3),
+//                new Point(pushThreePose)));
+//        grabOne.setLinearHeadingInterpolation(pushTwoPose.getHeading(), pushThreePose.getHeading());
+//        grabOne.setPathEndVelocityConstraint(10);
+
 
         depositOne = new Path(new BezierCurve(new Point(pushThreePose),
                 new Point(scoreOneControlPoint),
@@ -203,6 +213,9 @@ public class FiveGuys extends BaseRobot {
             case SUB_TO_PUSH:
                 follower.followPath(pushChain);
                 break;
+//            case GRAB_ONE:
+//                follower.followPath(grabOne);
+//                break;
             case DEPOSIT_ONE:
                 follower.followPath(depositOne);
                 break;
@@ -234,42 +247,45 @@ public class FiveGuys extends BaseRobot {
     }
 
     public boolean autonomousRobotUpdate(double v) {
+        follower.update();
+
         slideSubsystem.update();
         switch (pathState) {
             case PRELOAD_TO_SUB:
                 extendoSubsystem.enable();
-
+                slideSubsystem.climb(true);
                 slideSubsystem.setState(SPEC); // SPEC-ish
 
-                if (v < 0.1)
-                    return false;
+                if (v < 0.1) return false;
 
                 armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
 
-                if (v < 0.9)
-                    return false;
+                if (v < 1) return false;
 
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.SPEC);
 
-                if (v < 1.5)
-                    return false;
+//                if (v < 1.5) return false;
 
                 if (follower.isBusy())
                     return false;
+                slideSubsystem.climb(false);
 
                 pathState = PathState.SUB_TO_PUSH;
                 return true;
             case SUB_TO_PUSH:
+                follower.update();
 
-                if (v < 0.5) {
+                if (v < 0.15){
                     clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
                     return false;
                 }
 
                 slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
                 slideSubsystem.update();
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+
 
                 if (follower.isBusy() || clawSubsystem.breakbeam.getState())
                     return false;
@@ -279,8 +295,17 @@ public class FiveGuys extends BaseRobot {
 
                 pathState = PathState.DEPOSIT_ONE;
                 return true;
-            case DEPOSIT_ONE:
 
+//            case GRAB_ONE:
+//                if (follower.isBusy() || clawSubsystem.breakbeam.getState())
+//                    return false;
+//
+//                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
+//                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
+//
+//                pathState = PathState.DEPOSIT_ONE;
+//                return true;
+            case DEPOSIT_ONE:
                 if (follower.isBusy())
                     return false;
 
@@ -332,6 +357,9 @@ public class FiveGuys extends BaseRobot {
                 return true;
             case DEPOSIT_THREE:
                 /*raise arm*/
+
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+
                 if (follower.isBusy())
                     return false;
 
@@ -353,6 +381,9 @@ public class FiveGuys extends BaseRobot {
                 return true;
             case DEPOSIT_FOUR:
                 /*raise arm*/
+
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+
                 if (follower.isBusy())
                     return false;
 
@@ -385,7 +416,6 @@ public class FiveGuys extends BaseRobot {
 
                 return true;
         }
-
         return false;
     }
 

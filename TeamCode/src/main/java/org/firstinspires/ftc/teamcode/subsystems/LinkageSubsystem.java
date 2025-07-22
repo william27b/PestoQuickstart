@@ -16,7 +16,8 @@ public class LinkageSubsystem {
         INTAKE (0.98),
         TRANSFER(0.90),
         SPEC (0.65),
-        WALL (0.85);
+        WALL (0.85),
+        AUTO(0.7);
 
         LinkageState(double position) {
             this.position = position;
@@ -45,7 +46,7 @@ public class LinkageSubsystem {
         return this.state;
     }
 
-    private void update() {
+    public void update() {
         this.linkage.setPosition(this.state.getPosition());
     }
 }

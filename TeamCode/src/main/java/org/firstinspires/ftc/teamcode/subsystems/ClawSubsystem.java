@@ -11,6 +11,7 @@ public class ClawSubsystem {
 
     public enum ClawState {
         OPEN (0.90),
+        LOOSE(0.625),
         CLOSED (0.55);
 
         ClawState(double position) {
@@ -41,7 +42,7 @@ public class ClawSubsystem {
         return this.state;
     }
 
-    private void update() {
+    public void update() {
         this.claw.setPosition(this.state.getPosition());
     }
 }
