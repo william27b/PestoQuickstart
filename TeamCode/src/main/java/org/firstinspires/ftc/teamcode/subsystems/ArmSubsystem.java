@@ -10,7 +10,7 @@ public class ArmSubsystem {
     private ArmState state;
 
     public enum ArmState {
-        WALL (0.04),
+        WALL (0.045),
         BUCKET (0.16),
         CLIMB(0.35),
         DEPOSIT (0.74),

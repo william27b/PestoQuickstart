@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.AUTO_DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
+import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -11,94 +12,103 @@ import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 import com.shprobotics.pestocore.processing.MotorCortex;
 
-import org.firstinspires.ftc.teamcode.PestoFTCConfig;
 import org.firstinspires.ftc.teamcode.constants.FConstants;
 import org.firstinspires.ftc.teamcode.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.ClimbSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
-@Config
-@Autonomous(name = "***Five Guys***")
-public class FiveGuys extends BaseRobot {
+@Autonomous(name = "*** 5+0 ***")
+public class FiveGuys extends OpMode {
+
+    public ClawSubsystem clawSubsystem;
+    public ExtendoSubsystem extendoSubsystem;
+    public IntakeSubsystem intakeSubsystem;
+    public LinkageSubsystem linkageSubsystem;
+    public SlideSubsystem slideSubsystem;
+    public ArmSubsystem armSubsystem;
+    public ClimbSubsystem climbSubsystem;
+
     private Follower follower;
+    private Timer pathTimer, opmodeTimer;
+    private ElapsedTime elapsedTime;
 
     private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
 
     private final Pose scorePreloadPose = new Pose(28, 74, Math.toRadians(0));
 
-    private final Pose pushOnePose = new Pose(25, 23, Math.toRadians(0));
-    private final Pose pushOneControlPoint1 = new Pose(20, 38);
-    private final Pose pushOneControlPoint2 = new Pose(30, 5);
-    private final Pose pushOneControlPoint3 = new Pose(52, 40);
+    private final Pose pushOnePose = new Pose(27.5, 22.5, Math.toRadians(0));
+    private final Pose pushOneControlPoint1 = new Pose(12, 40);
+    private final Pose pushOneControlPoint2 = new Pose(35, 14);
+    private final Pose pushOneControlPoint3 = new Pose(51, 33);
     private final Pose pushOneControlPoint4 = new Pose(47, 50);
     private final Pose pushOneControlPoint5 = new Pose(76, 12);
-    private final Pose pushOneControlPoint6 = new Pose(54, 25);
+    private final Pose pushOneControlPoint6 = new Pose(54, 24);
 
-    private final Pose pushTwoPose = new Pose(30, 15, Math.toRadians(0));
+    private final Pose pushTwoPose = new Pose(27.5, 15, Math.toRadians(0));
     private final Pose pushTwoControlPoint1 = new Pose(58, 36);
-    private final Pose pushTwoControlPoint2 = new Pose(58, 19);
+    private final Pose pushTwoControlPoint2 = new Pose(70, 20);
     private final Pose pushTwoControlPoint3 = new Pose(38, 35);
-    private final Pose pushTwoControlPoint4 = new Pose(72, 10);
+    private final Pose pushTwoControlPoint4 = new Pose(84, 11);
     private final Pose pushTwoControlPoint5 = new Pose(44, 13);
 
-    private final Pose pushThreePose = new Pose(40, 6.5, Math.toRadians(0));
+    private final Pose pushThreePose = new Pose(10.5, 7, Math.toRadians(0));
     private final Pose pushThreeControlPoint1 = new Pose(62, 24);
     private final Pose pushThreeControlPoint2 = new Pose(76, 1);
-    private final Pose pushThreeControlPoint3 = new Pose(45, 6.5);
+    private final Pose pushThreeControlPoint3 = new Pose(36, 7);
 
-    private final Pose scoreOnePose = new Pose(34, 72, Math.toRadians(0));
-    private final Pose scoreOneControlPoint = new Pose(14, 62);
+    private final Pose scoreOnePose = new Pose(34, 72.5, Math.toRadians(0));
+    private final Pose scoreOneControlPoint = new Pose(7, 70);
 
-    private final Pose grabTwoPose = new Pose(14.5, 40, Math.toRadians(0));
+    private final Pose grabTwoPose = new Pose(14.75, 38, Math.toRadians(0));
     private final Pose grabTwoControlPoint1 = new Pose(17, 62);
-    private final Pose grabTwoControlPoint2 = new Pose(20, 40);
+    private final Pose grabTwoControlPoint2 = new Pose(25, 40);
 
-    private final Pose scoreTwoPose = new Pose(34, 70.5, Math.toRadians(0));
-    private final Pose scoreTwoControlPoint = new Pose(22, 62);
+    private final Pose scoreTwoPose = new Pose(34, 71, Math.toRadians(0));
+    private final Pose scoreTwoControlPoint = new Pose(7, 70);
 
-    private final Pose grabThreePose = new Pose(14.5, 40, Math.toRadians(0));
+    private final Pose grabThreePose = new Pose(14.75, 38, Math.toRadians(0));
     private final Pose grabThreeControlPoint1 = new Pose(17, 62);
-    private final Pose grabThreeControlPoint2 = new Pose(20, 40);
+    private final Pose grabThreeControlPoint2 = new Pose(25, 40);
 
-    private final Pose scoreThreePose = new Pose(34, 69, Math.toRadians(0));
-    private final Pose scoreThreeControlPoint = new Pose(22, 62);
+    private final Pose scoreThreePose = new Pose(34, 68, Math.toRadians(0));
+    private final Pose scoreThreeControlPoint = new Pose(7, 70);
 
-    private final Pose grabFourPose = new Pose(14.5, 40, Math.toRadians(0));
+    private final Pose grabFourPose = new Pose(14.75, 38, Math.toRadians(0));
     private final Pose grabFourControlPoint1 = new Pose(17, 62);
-    private final Pose grabFourControlPoint2 = new Pose(20, 40);
+    private final Pose grabFourControlPoint2 = new Pose(25, 40);
 
-    private final Pose scoreFourPose = new Pose(34, 68, Math.toRadians(0));
-    private final Pose scoreFourControlPoint = new Pose(22, 62);
+    private final Pose scoreFourPose = new Pose(34, 66, Math.toRadians(0));
+    private final Pose scoreFourControlPoint = new Pose(7, 70);
 
-    private final Pose grabBucketPose = new Pose(14.5, 40, Math.toRadians(0));
-    private final Pose grabBucketControlPoint1 = new Pose(17, 62);
-    private final Pose grabBucketControlPoint2 = new Pose(20, 40);
+    private final Pose grabBucketPose = new Pose(10, 58, Math.toRadians(270));
 
-    private final Pose scoreBucketPose = new Pose(14, 130, Math.toRadians(315));
-    private final Pose scoreBucketControlPoint = new Pose(30, 118);
 
-    private Path scorePreload,
-            grabOne, depositOne,
+    private final Pose parkPose = new Pose(20, 120, Math.toRadians(0));
+    private Path scorePreload, depositOne,
             grabTwo, depositTwo,
             grabThree, depositThree,
             grabFour, depositFour,
-            grabBucket, depositBucket;
+            grabBucket;
 
     private PathChain pushChain;
-
     private PathState pathState;
 
     public enum PathState {
         PRELOAD_TO_SUB,
         SUB_TO_PUSH,
-        GRAB_ONE,
         DEPOSIT_ONE,
         GRAB_TWO,
         DEPOSIT_TWO,
@@ -110,48 +120,39 @@ public class FiveGuys extends BaseRobot {
         BUCKET,
         PARK;
     }
-
     public void buildPaths() {
+
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePreloadPose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePreloadPose.getHeading());
 
         pushChain = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(scorePreloadPose),
-                    new Point(pushOneControlPoint1),
-                    new Point(pushOneControlPoint2),
-                    new Point(pushOneControlPoint3),
-                    new Point(pushOneControlPoint4),
-                    new Point(pushOneControlPoint5),
-                    new Point(pushOneControlPoint6),
-                    new Point(pushOnePose)))
+                        new Point(pushOneControlPoint1),
+                        new Point(pushOneControlPoint2),
+                        new Point(pushOneControlPoint3),
+                        new Point(pushOneControlPoint4),
+                        new Point(pushOneControlPoint5),
+                        new Point(pushOneControlPoint6),
+                        new Point(pushOnePose)))
                 .setLinearHeadingInterpolation(scorePreloadPose.getHeading(), pushOnePose.getHeading())
                 .setPathEndTimeoutConstraint(100)
                 .addPath(new BezierCurve(new Point(pushOnePose),
-                    new Point(pushTwoControlPoint1),
-                    new Point(pushTwoControlPoint2),
-                    new Point(pushTwoControlPoint3),
-                    new Point(pushTwoControlPoint4),
-                    new Point(pushTwoControlPoint5),
-                    new Point(pushTwoPose)))
+                        new Point(pushTwoControlPoint1),
+                        new Point(pushTwoControlPoint2),
+                        new Point(pushTwoControlPoint3),
+                        new Point(pushTwoControlPoint4),
+                        new Point(pushTwoControlPoint5),
+                        new Point(pushTwoPose)))
                 .setLinearHeadingInterpolation(pushOnePose.getHeading(), pushTwoPose.getHeading())
                 .setPathEndTimeoutConstraint(100)
                 .addPath(new BezierCurve(new Point(pushTwoPose),
-                    new Point(pushThreeControlPoint1),
-                    new Point(pushThreeControlPoint2),
-                    new Point(pushThreeControlPoint3),
-                    new Point(pushThreePose)))
+                        new Point(pushThreeControlPoint1),
+                        new Point(pushThreeControlPoint2),
+                        new Point(pushThreeControlPoint3),
+                        new Point(pushThreePose)))
                 .setLinearHeadingInterpolation(pushTwoPose.getHeading(), pushThreePose.getHeading())
-                .setPathEndTimeoutConstraint(1000)
+                .setPathEndTimeoutConstraint(100)
                 .build();
-
-//        grabOne = new Path(new BezierCurve(new Point(pushTwoPose),
-//                new Point(pushThreeControlPoint1),
-//                new Point(pushThreeControlPoint2),
-//                new Point(pushThreeControlPoint3),
-//                new Point(pushThreePose)));
-//        grabOne.setLinearHeadingInterpolation(pushTwoPose.getHeading(), pushThreePose.getHeading());
-//        grabOne.setPathEndVelocityConstraint(10);
-
 
         depositOne = new Path(new BezierCurve(new Point(pushThreePose),
                 new Point(scoreOneControlPoint),
@@ -192,273 +193,279 @@ public class FiveGuys extends BaseRobot {
         depositFour.setLinearHeadingInterpolation(grabFourPose.getHeading(), scoreFourPose.getHeading());
 
         grabBucket = new Path(new BezierCurve(new Point(scoreFourPose),
-                new Point(grabBucketControlPoint1),
-                new Point(grabBucketControlPoint2),
                 new Point(grabBucketPose)));
         grabBucket.setLinearHeadingInterpolation(scoreFourPose.getHeading(), grabBucketPose.getHeading());
 
-        depositBucket = new Path(new BezierCurve(new Point(grabBucketPose),
-                new Point(scoreBucketControlPoint),
-                new Point(scoreBucketPose)));
-        depositBucket.setLinearHeadingInterpolation(grabBucketPose.getHeading(), scoreBucketPose.getHeading());
 
     }
-
     public void autonomousPathUpdate() {
-        slideSubsystem.update();
+        if (follower.isBusy())
+            return;
+
         switch (pathState) {
             case PRELOAD_TO_SUB:
                 follower.followPath(scorePreload);
+
+                slideSubsystem.climb(true);
+                slideSubsystem.setState(SPEC);
+
+                wait(0.1);
+                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+
+                wait(0.5);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.SPEC);
+
+                setPathState(PathState.SUB_TO_PUSH);
                 break;
+
             case SUB_TO_PUSH:
+                slideSubsystem.climb(false);
+
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
+
+                wait(0.1);
+
                 follower.followPath(pushChain);
+
+                wait(0.5);
+
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
+                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.update();
+
+                wait(0.5);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.AUTO);
+
+                setPathState(PathState.DEPOSIT_ONE);
+
                 break;
-//            case GRAB_ONE:
-//                follower.followPath(grabOne);
-//                break;
+
             case DEPOSIT_ONE:
+                grabSpec();
+
                 follower.followPath(depositOne);
+
+                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                slideSubsystem.setState(SPEC);
+
+                setPathState(PathState.GRAB_TWO);
                 break;
+
             case GRAB_TWO:
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+
                 follower.followPath(grabTwo);
+
+                wait(0.25);
+                slideSubsystem.setState(AUTO_DOWN);
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
+
+                if(!clawSubsystem.breakbeam.getState()) {
+                    setPathState(PathState.DEPOSIT_TWO);
+                }
+
                 break;
+
             case DEPOSIT_TWO:
+                grabSpec();
+
                 follower.followPath(depositTwo);
+
+                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                slideSubsystem.setState(SPEC);
+                wait(1.0);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+
+                setPathState(PathState.GRAB_THREE);
                 break;
+
             case GRAB_THREE:
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+
                 follower.followPath(grabThree);
+
+                wait(0.25);
+                slideSubsystem.setState(AUTO_DOWN);
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
+
+                if(!clawSubsystem.breakbeam.getState()) {
+                    setPathState(PathState.DEPOSIT_THREE);
+                }
                 break;
+
             case DEPOSIT_THREE:
+                grabSpec();
+
                 follower.followPath(depositThree);
+
+                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                slideSubsystem.setState(SPEC);
+                wait(1.0);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+
+                setPathState(PathState.GRAB_FOUR);
                 break;
+
             case GRAB_FOUR:
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+
                 follower.followPath(grabFour);
+
+                wait(0.5);
+                slideSubsystem.setState(AUTO_DOWN);
+                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
+
+                if(!clawSubsystem.breakbeam.getState()) {
+                    setPathState(PathState.DEPOSIT_FOUR);
+                }
                 break;
+
             case DEPOSIT_FOUR:
+                grabSpec();
+
                 follower.followPath(depositFour);
+
+                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                slideSubsystem.setState(SPEC);
+                wait(1.0);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+
+                setPathState(PathState.GRAB_BUCKET);
                 break;
+
             case GRAB_BUCKET:
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
+
                 follower.followPath(grabBucket);
+
+                wait(0.5);
+                slideSubsystem.setState(AUTO_DOWN);
+                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
+
+                extendoSubsystem.setState(ExtendoSubsystem.ExtendoState.OUT);
+                intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
+
+//                if(!intakeSubsystem.getSample().equals("nothing")) {
+//                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
+//                    extendoSubsystem.setState(ExtendoSubsystem.ExtendoState.IN);
+//
+//                    setPathState(PathState.BUCKET);
+//                }
+                    setPathState(PathState.BUCKET);
+
                 break;
+
             case BUCKET:
-                follower.followPath(depositBucket);
                 break;
+
         }
     }
 
-    public boolean autonomousRobotUpdate(double v) {
-        follower.update();
-
-        slideSubsystem.update();
-        switch (pathState) {
-            case PRELOAD_TO_SUB:
-                extendoSubsystem.enable();
-                slideSubsystem.climb(true);
-                slideSubsystem.setState(SPEC); // SPEC-ish
-
-                if (v < 0.1) return false;
-
-                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
-
-                if (v < 1) return false;
-
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.SPEC);
-
-//                if (v < 1.5) return false;
-
-                if (follower.isBusy())
-                    return false;
-                slideSubsystem.climb(false);
-
-                pathState = PathState.SUB_TO_PUSH;
-                return true;
-            case SUB_TO_PUSH:
-                follower.update();
-
-                if (v < 0.15){
-                    clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
-                    return false;
-                }
-
-                slideSubsystem.setState(DOWN);
-                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
-                slideSubsystem.update();
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
-
-
-                if (follower.isBusy() || clawSubsystem.breakbeam.getState())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
-
-                pathState = PathState.DEPOSIT_ONE;
-                return true;
-
-//            case GRAB_ONE:
-//                if (follower.isBusy() || clawSubsystem.breakbeam.getState())
-//                    return false;
-//
-//                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
-//                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
-//
-//                pathState = PathState.DEPOSIT_ONE;
-//                return true;
-            case DEPOSIT_ONE:
-                if (follower.isBusy())
-                    return false;
-
-                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
-
-                pathState = PathState.GRAB_TWO;
-                return true;
-            case GRAB_TWO:
-                /*prep arm for grab*/
-
-                if (v < 0.5)
-                    return false;
-
-                slideSubsystem.setState(DOWN);
-                armSubsystem.setState(ArmSubsystem.ArmState.WALL);
-                slideSubsystem.update();
-
-                if (follower.isBusy() || clawSubsystem.breakbeam.getState())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
-
-                pathState = PathState.DEPOSIT_TWO;
-                return true;
-            case DEPOSIT_TWO:
-                /*raise arm*/
-
-                if (follower.isBusy())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
-
-                pathState = PathState.GRAB_THREE;
-                return true;
-            case GRAB_THREE:
-                /*prep arm for grab*/
-                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                if (follower.isBusy())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
-
-                pathState = PathState.DEPOSIT_THREE;
-                return true;
-            case DEPOSIT_THREE:
-                /*raise arm*/
-
-                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-
-                if (follower.isBusy())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
-
-                pathState = PathState.GRAB_FOUR;
-                return true;
-            case GRAB_FOUR:
-                /*prep arm for grab*/
-                if (follower.isBusy())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.HIGH_RUNG.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.HIGH_RUNG.getMacroAlias());
-
-                pathState = PathState.DEPOSIT_FOUR;
-                return true;
-            case DEPOSIT_FOUR:
-                /*raise arm*/
-
-                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-
-                if (follower.isBusy())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SPEC.getMacroAlias());
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
-
-                pathState = PathState.GRAB_BUCKET;
-                return true;
-            case GRAB_BUCKET:
-                /*prep arm for grab*/
-                if (follower.isBusy())
-                    return false;
-
-                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-
-                pathState = PathState.BUCKET;
-                return true;
-            case BUCKET:
-                /*raise arm*/
-                if(follower.getPose().getY() > 72)
-                    if (!FrontalLobe.hasMacro(TransferState.AUTO_BUCKET_DEPO.getMacroAlias()))
-                        FrontalLobe.useMacro(TransferState.AUTO_BUCKET_DEPO.getMacroAlias());
-
-                if (follower.isBusy())
-                    return false;
-
-                if (!FrontalLobe.hasMacro(TransferState.RELEASE_FROM_SAMPLE.getMacroAlias()))
-                    FrontalLobe.useMacro(TransferState.RELEASE_FROM_SAMPLE.getMacroAlias());
-
-                return true;
-        }
-        return false;
+    public void setPathState(PathState pState) {
+        pathState = pState;
+        pathTimer.resetTimer();
     }
 
     @Override
-    public void runOpMode() {
-        PestoFTCConfig.initializePinpoint = false;
+    public void loop() {
 
-        super.runOpMode();
+        // These loop the movements of the robot
+        follower.update();
+        autonomousPathUpdate();
+        updateSubsystems();
 
-        transferState = TransferState.AUTO_SPEC_START;
-        FrontalLobe.removeMacros("spec");
-        FrontalLobe.useMacro(transferState.getMacroAlias());
+        FrontalLobe.update();
+        MotorCortex.update();
+
+        // Feedback to Driver Hub
+        telemetry.addData("path state", pathState);
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
+        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.update();
+    }
+
+    @Override
+    public void init() {
+        FrontalLobe.initialize(hardwareMap);
+        MotorCortex.initialize(hardwareMap);
+
+        clawSubsystem = new ClawSubsystem();
+        extendoSubsystem = new ExtendoSubsystem();
+        intakeSubsystem = new IntakeSubsystem();
+        linkageSubsystem = new LinkageSubsystem();
+        slideSubsystem = new SlideSubsystem();
+        armSubsystem = new ArmSubsystem(hardwareMap);
+        climbSubsystem = new ClimbSubsystem();
+
+        extendoSubsystem.enable();
+
+        pathTimer = new Timer();
+        opmodeTimer = new Timer();
+        opmodeTimer.resetTimer();
 
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         buildPaths();
 
-        pathState = PathState.PRELOAD_TO_SUB;
+        armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+        linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
+        clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
 
-        waitForStart();
+    }
 
-        double whenChangePath = System.nanoTime();
-        autonomousPathUpdate();
+    @Override
+    public void init_loop() {}
 
-        while (opModeIsActive() && !isStopRequested()) {
-            MotorCortex.update();
-            FrontalLobe.update();
-            slideSubsystem.update();
+    @Override
+    public void start() {
+        extendoSubsystem.enable();
+        opmodeTimer.resetTimer();
+        setPathState(PathState.PRELOAD_TO_SUB);
 
+        elapsedTime = new ElapsedTime();
+        elapsedTime.reset();
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    public void updateSubsystems(){
+        follower.update();
+        clawSubsystem.update();
+        extendoSubsystem.update();
+        intakeSubsystem.update();
+        linkageSubsystem.update();
+        slideSubsystem.update();
+        armSubsystem.update();
+    }
+
+    public void wait(double sec){
+        elapsedTime.reset();
+        while (elapsedTime.seconds() < sec){
             follower.update();
-
-            boolean pathSegmentFinished = autonomousRobotUpdate((System.nanoTime() - whenChangePath) / 1E9);
-            if (pathSegmentFinished) {
-                autonomousPathUpdate();
-                whenChangePath = System.nanoTime();
-            }
-
-            telemetry.addData("path state", pathState);
-            telemetry.addData("x", follower.getPose().getX());
-            telemetry.addData("y", follower.getPose().getY());
-            telemetry.addData("heading", follower.getPose().getHeading());
-            telemetry.update();
         }
+    }
+
+    public void grabSpec(){
+        clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+        wait(0.25);
+    }
+
+    public void grabBucket(){
+        clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+        wait(0.25);
+
+        slideSubsystem.setState(UP);
+        armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
+        linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
     }
 }
 
