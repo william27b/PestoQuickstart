@@ -38,11 +38,11 @@ public class SlideSubsystem {
     public SlideSubsystem() {
         this.botSlide = MotorCortex.getMotor("botSlide");
         this.botSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.botSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.botSlide.setDirection(DcMotorSimple.Direction.FORWARD);
 
         this.topSlide = MotorCortex.getMotor("topSlide");
         this.topSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.topSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        this.topSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.state = DOWN;
         this.update();
@@ -122,5 +122,10 @@ public class SlideSubsystem {
 
     public void climb(boolean status){
         this.climb = status;
+    }
+
+    public void deactivate() {
+        MotorCortex.MotorCommands.disableMotor(this.botSlide);
+        MotorCortex.MotorCommands.disableMotor(this.topSlide);
     }
 }
