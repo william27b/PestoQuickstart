@@ -27,7 +27,7 @@ public class IntakeSubsystem {
         STORED (0.00, 0.05, 0.11),
         TO_OUTTAKE (0.00, 0.40, 0.11),
         OUTTAKE (1.00, 0.40, 0.11),
-        MEGA_OUTTAKE (-1.00, 0.00, 0.11);
+        MEGA_OUTTAKE (-0.60, 0.40, 0.11);
 
         IntakeState(double power, double dropdownPosition, double gatePosition) {
             this.power = power;
@@ -107,5 +107,12 @@ public class IntakeSubsystem {
         this.dropdown.setPositionResult(this.state.getDropdownPosition());
 
         this.gate.setPositionResult(this.state.getGatePosition());
+    }
+
+    public void deactivate() {
+        MotorCortex.MotorCommands.disableMotor(this.intake);
+
+        MotorCortex.ServoCommands.disableServo(this.dropdown);
+        MotorCortex.ServoCommands.disableServo(this.gate);
     }
 }
