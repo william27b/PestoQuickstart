@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.AUTO_DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,11 +16,10 @@ public class SlideSubsystem {
 
     public enum SlideState {
         DOWN (0),
-        AUTO_DOWN(0),
         CLIMB(-50),
         MEDIUM(-400),
         CLIMB_UP(-600),
-        SPEC (-830),
+        SPEC (-815),
         UP (-1250);
 
         SlideState(int position) {
@@ -84,13 +82,13 @@ public class SlideSubsystem {
     public void update() {
         currentVelocity = (currentVelocity * 0.9) + (this.getVelocity());
 
-        if(climb){
+        if (climb) {
             this.botSlide.setPowerResult(1.0);
             this.topSlide.setPowerResult(1.0);
-        } else if (this.state == DOWN || (this.state == AUTO_DOWN && Math.abs(currentVelocity) > 500 && !autoOverride)) {
+        } else if (this.state == DOWN && Math.abs(currentVelocity) > 750 && !autoOverride) {
             this.botSlide.setPowerResult(0.0);
             this.topSlide.setPowerResult(0.0);
-        } else if (this.state == AUTO_DOWN){
+        } else if (this.state == DOWN){
             autoOverride = true;
             this.botSlide.setPowerResult(0.8);
             this.topSlide.setPowerResult(0.8);
@@ -99,7 +97,7 @@ public class SlideSubsystem {
             this.topSlide.setPowerResult(0.7);
         }
 
-        if(botSlide.getCurrentPosition() > -10)
+        if(botSlide.getCurrentPosition() > -5)
             autoOverride = false;
 
         this.botSlide.setTargetPosition(this.state.getPosition());

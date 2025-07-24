@@ -11,10 +11,10 @@ public class LinkageSubsystem {
     private LinkageState state;
 
     public enum LinkageState {
-        OVEREXTENDED (0.5), //from 0.58 to 0.5 for issue #14
+        OVEREXTENDED (0.5),
         RETRACTED (1.00),
         INTAKE (0.98),
-        TRANSFER(0.90),
+        TRANSFER(0.87),
         SPEC (0.65),
         WALL (0.85),
         AUTO(0.7);

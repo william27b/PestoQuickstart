@@ -267,6 +267,9 @@ public class RedTeleOp extends BaseRobot {
             telemetry.addData("transfer state", transferState);
             telemetry.addData("velocity", slideSubsystem.getVelocity());
             telemetry.addData("position", slideSubsystem.getPosition());
+            telemetry.addData("power", slideSubsystem.getCurrentPower());
+
+            slideSubsystem.update();
             telemetry.update();
             tracker.update();
         }

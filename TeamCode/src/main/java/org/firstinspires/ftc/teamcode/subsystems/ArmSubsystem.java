@@ -14,7 +14,7 @@ public class ArmSubsystem {
         BUCKET (0.16),
         CLIMB(0.35),
         DEPOSIT (0.74),
-        TRANSFER (0.98);
+        TRANSFER (0.97);
 
         ArmState(double position) {
             this.position = position;
