@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.shprobotics.pestocore.processing.MotorCortex;
 
 public class ArmSubsystem {
     private final ServoImplEx armLeft;
@@ -27,11 +27,11 @@ public class ArmSubsystem {
         }
     }
 
-    public ArmSubsystem(HardwareMap hardwareMap) {
-        this.armLeft = (ServoImplEx) hardwareMap.get("armLeft");
+    public ArmSubsystem() {
+        this.armLeft = (ServoImplEx) MotorCortex.hardwareMap.get("armLeft");
         this.armLeft.setPwmRange(new PwmControl.PwmRange(500, 2500)); // Axon PWM
 
-        this.armRight = (ServoImplEx) hardwareMap.get("armLeft");
+        this.armRight = (ServoImplEx) MotorCortex.hardwareMap.get("armLeft");
         this.armRight.setPwmRange(new PwmControl.PwmRange(500, 2500)); // Axon PWM
 
         this.state = ArmState.TRANSFER;
@@ -51,5 +51,8 @@ public class ArmSubsystem {
     public void update() {
         this.armLeft.setPosition(this.state.getPosition());
         this.armRight.setPosition(this.state.getPosition());
+    }
+
+    public void deactivate() {
     }
 }

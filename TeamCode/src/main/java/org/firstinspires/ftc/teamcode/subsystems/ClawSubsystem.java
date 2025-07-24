@@ -45,4 +45,8 @@ public class ClawSubsystem {
     public void update() {
         this.claw.setPosition(this.state.getPosition());
     }
+
+    public void deactivate() {
+        MotorCortex.ServoCommands.disableServo(this.claw);
+    }
 }

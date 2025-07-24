@@ -49,4 +49,8 @@ public class LinkageSubsystem {
     public void update() {
         this.linkage.setPosition(this.state.getPosition());
     }
+
+    public void deactivate() {
+        MotorCortex.ServoCommands.disableServo(this.linkage);
+    }
 }

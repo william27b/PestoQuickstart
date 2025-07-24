@@ -64,4 +64,8 @@ public class ExtendoSubsystem {
     public void disable() {
         this.extendo.setPowerResult(0.0);
     }
+
+    public void deactivate() {
+        MotorCortex.MotorCommands.disableMotor(this.extendo);
+    }
 }
