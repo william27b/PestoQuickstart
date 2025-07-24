@@ -13,15 +13,15 @@ import static com.shprobotics.pestocore.devices.GamepadKey.Y;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.CLIMB_SLIDES_DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.CLIMB_SLIDES_UP;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.HIGH_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.PISTON;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.RELEASE_FROM_SPEC;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.SPEC_WALL;
 import static org.firstinspires.ftc.teamcode.subsystems.BaseRobot.TransferState.SPEC_WALL_FROM_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.OUT;
+import static org.firstinspires.ftc.teamcode.subsystems.PTOSubsystem.PTOState.ENGAGED;
+import static org.firstinspires.ftc.teamcode.subsystems.PTOSubsystem.PTOState.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.CLIMB;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.CLIMB_UP;
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -32,9 +32,7 @@ import com.shprobotics.pestocore.processing.MotorCortex;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.ClimbSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
 @TeleOp(name = "Red TeleOp")
@@ -45,7 +43,10 @@ public class RedTeleOp extends BaseRobot {
         boolean justRed = true;
 
         super.runOpMode();
+
+        armSubsystem.setState(ArmSubsystem.ArmState.CLIMB); // VERTICAL INIT bc
         waitForStart();
+        armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
 
         extendoSubsystem.enable();
         slideSubsystem.enable();
@@ -54,6 +55,56 @@ public class RedTeleOp extends BaseRobot {
             gamepadInterface1.update();
             MotorCortex.update();
             FrontalLobe.update();
+
+            if(gamepadInterface1.isKeyDown(DPAD_UP)){
+                switch(transferState){
+                    case RELEASE_FROM_SAMPLE:
+                    case RELEASE_FROM_SPEC:
+                    case BUCKET_TRANSFERRING:
+                    case TO_SUBSTATION:
+                    case FROM_SUBSTATION:
+                    case SPEC_WALL:
+                    case SPEC_WALL_FROM_RUNG:
+                    case HIGH_RUNG:
+                        FrontalLobe.useMacro("L3 - Piston");
+
+                        mecanumController.setPowerVectors(
+                                new Vector2D[]{
+                                        new Vector2D(0, 0),
+                                        new Vector2D(0, 0),
+                                        new Vector2D(-1, 1),
+                                        new Vector2D(1, 1)
+                                }
+                        );
+
+                        mecanumController.drive(0,0,0);
+                        transferState = CLIMB_SLIDES_DOWN;
+                        break;
+                    case CLIMB_SLIDES_DOWN:
+                        mecanumController.drive(1,0,0);
+
+                        armSubsystem.deactivate();
+                        clawSubsystem.deactivate();
+                        extendoSubsystem.deactivate();
+                        intakeSubsystem.deactivate();
+                        linkageSubsystem.deactivate();
+
+                        slideSubsystem.setState(CLIMB);
+                        ptoSubsystem.setState(ENGAGED);
+                        transferState = CLIMB_SLIDES_UP;
+                        break;
+                    case CLIMB_SLIDES_UP:
+                        mecanumController.drive(0,0,0);
+
+                        slideSubsystem.setState(CLIMB_UP);
+                        ptoSubsystem.setState(NEUTRAL);
+                        transferState = CLIMB_SLIDES_DOWN;
+                        break;
+                }
+            }
+
+            if (transferState == CLIMB_SLIDES_DOWN || transferState == CLIMB_SLIDES_UP)
+                continue;
 
             teleOpController.driveFieldCentric(0.9*-gamepad1.left_stick_y, 0.9*gamepad1.left_stick_x, 0.9*gamepad1.right_stick_x);
 
@@ -203,39 +254,6 @@ public class RedTeleOp extends BaseRobot {
                 }
 
                 FrontalLobe.useMacro(transferState.getMacroAlias());
-            }
-
-            if(gamepadInterface1.isKeyDown(DPAD_UP)){
-                switch(transferState){
-                    case RELEASE_FROM_SAMPLE:
-                    case RELEASE_FROM_SPEC:
-                    case BUCKET_TRANSFERRING:
-                    case TO_SUBSTATION:
-                    case FROM_SUBSTATION:
-                    case SPEC_WALL:
-                    case SPEC_WALL_FROM_RUNG:
-                    case HIGH_RUNG:
-                        transferState = PISTON;
-                        climbSubsystem.setPistonState(ClimbSubsystem.PistonState.UP);
-                        linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
-                        clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                        armSubsystem.setState(ArmSubsystem.ArmState.CLIMB);
-                        climbSubsystem.setPistonState(ClimbSubsystem.PistonState.DOWN);
-                        break;
-                    case PISTON:
-                    case CLIMB_SLIDES_DOWN:
-                        climbSubsystem.setPTOState(ClimbSubsystem.PTOState.ENGAGED);
-                        slideSubsystem.setState(CLIMB);
-                        mecanumController.drive(-1,0,0);
-                        transferState = CLIMB_SLIDES_UP;
-                        break;
-                    case CLIMB_SLIDES_UP:
-                        slideSubsystem.climb(true);
-                        climbSubsystem.setPTOState(ClimbSubsystem.PTOState.NEUTRAL);
-                        slideSubsystem.setState(CLIMB_UP);
-                        transferState = CLIMB_SLIDES_DOWN;
-                        break;
-                }
             }
 
             if (gamepadInterface1.isKeyDown(TOUCHPAD))

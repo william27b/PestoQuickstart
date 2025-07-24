@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.CLIMB;
+import static org.firstinspires.ftc.teamcode.subsystems.PTOSubsystem.PTOState.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.CLIMB_UP;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.MEDIUM;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
@@ -28,7 +29,9 @@ public class BaseRobot extends LinearOpMode {
     public LinkageSubsystem linkageSubsystem;
     public SlideSubsystem slideSubsystem;
     public ArmSubsystem armSubsystem;
-    public ClimbSubsystem climbSubsystem;
+
+    public PistonSubsystem pistonSubsystem;
+    public PTOSubsystem ptoSubsystem;
 
     public GamepadInterface gamepadInterface1;
     public GamepadInterface gamepadInterface2;
@@ -53,7 +56,6 @@ public class BaseRobot extends LinearOpMode {
         SPEC_WALL_FROM_RUNG ("spec - wall - from rung"),
         HIGH_RUNG ("spec - high rung"),
         //CLIMB
-        PISTON ("climb - piston"),
         CLIMB_SLIDES_UP ("climb - raise slides"),
         CLIMB_SLIDES_DOWN("climb - lower slides");
 
@@ -107,8 +109,10 @@ public class BaseRobot extends LinearOpMode {
         intakeSubsystem = new IntakeSubsystem();
         linkageSubsystem = new LinkageSubsystem();
         slideSubsystem = new SlideSubsystem();
-        armSubsystem = new ArmSubsystem(hardwareMap);
-        climbSubsystem = new ClimbSubsystem();
+        armSubsystem = new ArmSubsystem();
+
+        ptoSubsystem = new PTOSubsystem();
+        pistonSubsystem = new PistonSubsystem();
 
         gamepadInterface1 = new GamepadInterface(gamepad1);
         gamepadInterface2 = new GamepadInterface(gamepad2);
@@ -323,7 +327,7 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.5) return false;
+                if (v < 1.0) return false;
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
                 slideSubsystem.setState(DOWN);
@@ -382,59 +386,81 @@ public class BaseRobot extends LinearOpMode {
             }
         });
 
-        FrontalLobe.addMacro("climb - piston", new FrontalLobe.Macro() {
+//        FrontalLobe.addMacro("climb - piston", new FrontalLobe.Macro() {
+//            @Override
+//            public void start() {
+//                climbSubsystem.setPistonState(ClimbSubsystem.PistonState.UP);
+//                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
+//                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+//            }
+//
+//            @Override
+//            public boolean loop(double v) {
+//                if (v < 0.6)
+//                    return false;
+//
+//                armSubsystem.setState(ArmSubsystem.ArmState.CLIMB);
+//                climbSubsystem.setPistonState(ClimbSubsystem.PistonState.DOWN);
+//
+//                return true;
+//            }
+//        });
+
+//        FrontalLobe.addMacro("climb - raise slides", new FrontalLobe.Macro() {
+//            @Override
+//            public void start() {
+//                climbSubsystem.setPTOState(ClimbSubsystem.PTOState.NEUTRAL);
+//            }
+//
+//            @Override
+//            public boolean loop(double v) {
+//                if (v < 0.5)
+//                    return false;
+//
+//                slideSubsystem.setState(UP);
+//
+//                return true;
+//            }
+//        });
+
+//        FrontalLobe.addMacro("climb - lower slides", new FrontalLobe.Macro() {
+//            @Override
+//            public void start() {
+//                climbSubsystem.setPTOState(ClimbSubsystem.PTOState.ENGAGED);
+//            }
+//
+//            @Override
+//            public boolean loop(double v) {
+//                if (v < 0.5)
+//                    return false;
+//
+//                slideSubsystem.setState(CLIMB);
+//
+//                return true;
+//            }
+//        });
+
+
+        FrontalLobe.addMacro("L3 - Piston", new FrontalLobe.Macro() {
             @Override
             public void start() {
-                climbSubsystem.setPistonState(ClimbSubsystem.PistonState.UP);
+                pistonSubsystem.setState(PistonSubsystem.PistonState.UP);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-            }
-
-            @Override
-            public boolean loop(double v) {
-                if (v < 0.6)
-                    return false;
-
                 armSubsystem.setState(ArmSubsystem.ArmState.CLIMB);
-                climbSubsystem.setPistonState(ClimbSubsystem.PistonState.DOWN);
-
-                return true;
-            }
-        });
-
-        FrontalLobe.addMacro("climb - raise slides", new FrontalLobe.Macro() {
-            @Override
-            public void start() {
-                climbSubsystem.setPTOState(ClimbSubsystem.PTOState.NEUTRAL);
             }
 
             @Override
             public boolean loop(double v) {
-                if (v < 0.5)
+                if (v < 0.8)
                     return false;
 
-                slideSubsystem.setState(UP);
+                pistonSubsystem.setState(PistonSubsystem.PistonState.DOWN);
+                ptoSubsystem.setState(NEUTRAL);
+                slideSubsystem.setState(CLIMB_UP);
 
                 return true;
             }
         });
-
-        FrontalLobe.addMacro("climb - lower slides", new FrontalLobe.Macro() {
-            @Override
-            public void start() {
-                climbSubsystem.setPTOState(ClimbSubsystem.PTOState.ENGAGED);
-            }
-
-            @Override
-            public boolean loop(double v) {
-                if (v < 0.5)
-                    return false;
-
-                slideSubsystem.setState(CLIMB);
-
-                return true;
-            }
-        });
-
     }
 }

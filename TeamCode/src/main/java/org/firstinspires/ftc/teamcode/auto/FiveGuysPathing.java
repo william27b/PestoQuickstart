@@ -24,7 +24,6 @@ import org.firstinspires.ftc.teamcode.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.ClimbSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
@@ -39,7 +38,6 @@ public class FiveGuysPathing extends OpMode {
     public LinkageSubsystem linkageSubsystem;
     public SlideSubsystem slideSubsystem;
     public ArmSubsystem armSubsystem;
-    public ClimbSubsystem climbSubsystem;
 
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
@@ -446,8 +444,7 @@ public class FiveGuysPathing extends OpMode {
         intakeSubsystem = new IntakeSubsystem();
         linkageSubsystem = new LinkageSubsystem();
         slideSubsystem = new SlideSubsystem();
-        armSubsystem = new ArmSubsystem(hardwareMap);
-        climbSubsystem = new ClimbSubsystem();
+        armSubsystem = new ArmSubsystem();
 
         extendoSubsystem.enable();
 
