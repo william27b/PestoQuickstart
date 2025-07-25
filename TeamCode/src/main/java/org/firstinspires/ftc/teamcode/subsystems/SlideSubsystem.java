@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.AUTO_DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -56,7 +55,7 @@ public class SlideSubsystem {
         this.autoOverride = false;
         this.currentVelocity = 0.0;
 
-        this.climb = false;
+        this.fullPower = false;
     }
 
     public void setState(SlideState state) {
@@ -120,8 +119,8 @@ public class SlideSubsystem {
         this.topSlide.setPowerResult(0.0);
     }
 
-    public void climb(boolean status){
-        this.climb = status;
+    public void setFullPower(boolean fullPower){
+        this.fullPower = fullPower;
     }
 
     public void deactivate() {
