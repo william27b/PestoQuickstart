@@ -281,7 +281,7 @@ public class BaseRobot extends LinearOpMode {
             @Override
             public void start() {
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
             }
 
             @Override
@@ -293,6 +293,10 @@ public class BaseRobot extends LinearOpMode {
                 if (v < 0.5) return false;
 
                 slideSubsystem.setState(DOWN);
+
+                if (v < 1.0) return false;
+
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.WALL);
 
                 return true;
             }

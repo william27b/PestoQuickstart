@@ -20,8 +20,8 @@ public class SlideSubsystem {
         AUTO_DOWN(0),
         CLIMB(-50),
         MEDIUM(-400),
-        CLIMB_UP(-800),
-        SPEC (-830),
+        CLIMB_UP(-900),
+        SPEC (-815),
         UP (-1250);
 
         SlideState(int position) {
@@ -38,11 +38,11 @@ public class SlideSubsystem {
     public SlideSubsystem() {
         this.botSlide = MotorCortex.getMotor("botSlide");
         this.botSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.botSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.botSlide.setDirection(DcMotorSimple.Direction.FORWARD);
 
         this.topSlide = MotorCortex.getMotor("topSlide");
         this.topSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.topSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        this.topSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.state = DOWN;
         this.update();
@@ -54,8 +54,9 @@ public class SlideSubsystem {
         this.topSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         this.autoOverride = false;
-        this.fullPower = false;
         this.currentVelocity = 0.0;
+
+        this.climb = false;
     }
 
     public void setState(SlideState state) {
@@ -65,11 +66,6 @@ public class SlideSubsystem {
 
     public SlideState getState() {
         return this.state;
-    }
-
-    public void setRunMode(DcMotor.RunMode runMode) {
-        this.botSlide.setMode(runMode);
-        this.topSlide.setMode(runMode);
     }
 
     public void setPosition(int position) {
@@ -86,13 +82,18 @@ public class SlideSubsystem {
     }
 
     public void update() {
-        // add back gravity for teleop
-        if ((this.state == DOWN || this.state == AUTO_DOWN) && Math.abs(this.getVelocity()) > 500 && !autoOverride) {
-            this.botSlide.setPowerResult(0.0);
-            this.topSlide.setPowerResult(0.0);
-        } else if (this.fullPower) {
+        currentVelocity = (currentVelocity * 0.9) + (this.getVelocity());
+
+        if (fullPower) {
             this.botSlide.setPowerResult(1.0);
             this.topSlide.setPowerResult(1.0);
+        } else if (this.state == DOWN && Math.abs(currentVelocity) > 750 && !autoOverride) {
+            this.botSlide.setPowerResult(0.0);
+            this.topSlide.setPowerResult(0.0);
+        } else if (this.state == DOWN){
+            autoOverride = true;
+            this.botSlide.setPowerResult(0.8);
+            this.topSlide.setPowerResult(0.8);
         } else {
             this.botSlide.setPowerResult(0.7);
             this.topSlide.setPowerResult(0.7);
@@ -109,15 +110,6 @@ public class SlideSubsystem {
         return botSlide.getPower();
     }
 
-    public void setFullPower(boolean fullPower) {
-        this.fullPower = fullPower;
-    }
-
-    public void setManualPower(double power) {
-        this.botSlide.setPower(power);
-        this.topSlide.setPower(power);
-    }
-
     public void enable() {
         this.botSlide.setPowerResult(0.8);
         this.topSlide.setPowerResult(0.8);
@@ -126,6 +118,10 @@ public class SlideSubsystem {
     public void disable() {
         this.botSlide.setPowerResult(0.0);
         this.topSlide.setPowerResult(0.0);
+    }
+
+    public void climb(boolean status){
+        this.climb = status;
     }
 
     public void deactivate() {

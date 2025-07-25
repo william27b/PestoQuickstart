@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.AUTO_DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
@@ -26,6 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.PistonSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
 @Autonomous(name = "*** 5+1 ***")
@@ -37,6 +37,7 @@ public class FiveGuysPathing extends OpMode {
     public LinkageSubsystem linkageSubsystem;
     public SlideSubsystem slideSubsystem;
     public ArmSubsystem armSubsystem;
+    public PistonSubsystem pistonSubsystem;
 
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
@@ -44,7 +45,7 @@ public class FiveGuysPathing extends OpMode {
 
     private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
 
-    private final Pose scorePreloadPose = new Pose(28, 74, Math.toRadians(0));
+    private final Pose scorePreloadPose = new Pose(26, 75, Math.toRadians(0));
 
     private final Pose pushOnePose = new Pose(27.5, 22.5, Math.toRadians(0));
     private final Pose pushOneControlPoint1 = new Pose(12, 40);
@@ -61,38 +62,38 @@ public class FiveGuysPathing extends OpMode {
     private final Pose pushTwoControlPoint4 = new Pose(77, 10);
     private final Pose pushTwoControlPoint5 = new Pose(44, 13);
 
-    private final Pose pushThreePose = new Pose(10.5, 7, Math.toRadians(0));
+    private final Pose pushThreePose = new Pose(9.5, 5, Math.toRadians(0));
     private final Pose pushThreeControlPoint1 = new Pose(62, 24);
     private final Pose pushThreeControlPoint2 = new Pose(70, 1);
-    private final Pose pushThreeControlPoint3 = new Pose(36, 7);
+    private final Pose pushThreeControlPoint3 = new Pose(36, 5);
 
-    private final Pose scoreOnePose = new Pose(28, 72.5, Math.toRadians(0));
-    private final Pose scoreOneControlPoint = new Pose(7, 70);
+    private final Pose scoreOnePose = new Pose(30, 73, Math.toRadians(0));
+    private final Pose scoreOneControlPoint = new Pose(10, 70);
 
-    private final Pose grabTwoPose = new Pose(15, 38, Math.toRadians(0));
+    private final Pose grabTwoPose = new Pose(14.5, 38, Math.toRadians(0));
     private final Pose grabTwoControlPoint1 = new Pose(17, 62);
     private final Pose grabTwoControlPoint2 = new Pose(20, 40);
 
-    private final Pose scoreTwoPose = new Pose(28, 71, Math.toRadians(0));
-    private final Pose scoreTwoControlPoint = new Pose(7, 70);
+    private final Pose scoreTwoPose = new Pose(30, 71.5, Math.toRadians(0));
+    private final Pose scoreTwoControlPoint = new Pose(10, 69);
 
-    private final Pose grabThreePose = new Pose(15, 38, Math.toRadians(0));
+    private final Pose grabThreePose = new Pose(14.5, 38, Math.toRadians(0));
     private final Pose grabThreeControlPoint1 = new Pose(17, 62);
     private final Pose grabThreeControlPoint2 = new Pose(20, 40);
 
-    private final Pose scoreThreePose = new Pose(28, 69, Math.toRadians(0));
-    private final Pose scoreThreeControlPoint = new Pose(7, 70);
+    private final Pose scoreThreePose = new Pose(30, 70, Math.toRadians(0));
+    private final Pose scoreThreeControlPoint = new Pose(10, 67);
 
-    private final Pose grabFourPose = new Pose(15, 38, Math.toRadians(0)); // TODO change 15 to 14.5
+    private final Pose grabFourPose = new Pose(14.5, 38, Math.toRadians(0));
     private final Pose grabFourControlPoint1 = new Pose(17, 62);
     private final Pose grabFourControlPoint2 = new Pose(20, 40);
 
-    private final Pose scoreFourPose = new Pose(28, 67, Math.toRadians(0));
-    private final Pose scoreFourControlPoint = new Pose(7, 70);
+    private final Pose scoreFourPose = new Pose(30, 67, Math.toRadians(0));
+    private final Pose scoreFourControlPoint = new Pose(10, 64);
 
-    private final Pose grabBucketPose = new Pose(11, 60, Math.toRadians(270)); //TODO Check that robot isn't killing itself into wall
+    private final Pose grabBucketPose = new Pose(16, 65, Math.toRadians(270));
 
-    private final Pose scoreBucketPose = new Pose(25, 120, Math.toRadians(315));
+    private final Pose scoreBucketPose = new Pose(30, 115, Math.toRadians(315));
     private final Pose scoreBucketControlPoint = new Pose(30, 118);
 
     private final Pose parkPose = new Pose(20, 120, Math.toRadians(0));
@@ -244,7 +245,7 @@ public class FiveGuysPathing extends OpMode {
                 wait(0.5);
 
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
-                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.setState(DOWN);
                 slideSubsystem.update();
 
                 wait(0.5);
@@ -271,7 +272,7 @@ public class FiveGuysPathing extends OpMode {
                 follower.followPath(grabTwo);
 
                 wait(0.25);
-                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
 
                 if(!clawSubsystem.breakbeam.getState()) {
@@ -300,7 +301,7 @@ public class FiveGuysPathing extends OpMode {
                 follower.followPath(grabThree);
 
                 wait(0.25);
-                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
 
                 if(!clawSubsystem.breakbeam.getState()) {
@@ -327,8 +328,8 @@ public class FiveGuysPathing extends OpMode {
 
                 follower.followPath(grabFour);
 
-                wait(0.5);
-                slideSubsystem.setState(AUTO_DOWN);
+                wait(0.25);
+                slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
 
                 if(!clawSubsystem.breakbeam.getState()) {
@@ -350,15 +351,16 @@ public class FiveGuysPathing extends OpMode {
                 break;
 
             case GRAB_BUCKET:
-                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
 
                 follower.followPath(grabBucket);
 
                 wait(0.5);
-                slideSubsystem.setState(AUTO_DOWN);
+                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+                slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
 
                 extendoSubsystem.setState(ExtendoSubsystem.ExtendoState.OUT);
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
@@ -377,14 +379,11 @@ public class FiveGuysPathing extends OpMode {
                 follower.followPath(depositBucket);
                 wait(0.5);
 
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
                 intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
-                wait(0.5);
+                wait(1.0);
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
 
-                wait(0.25);
-
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
                 wait(0.5);
 
                 slideSubsystem.setState(UP);
@@ -400,7 +399,7 @@ public class FiveGuysPathing extends OpMode {
                 wait(0.5);
                 follower.followPath(park);
 
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
                 armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
                 slideSubsystem.setState(DOWN);
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
@@ -444,7 +443,9 @@ public class FiveGuysPathing extends OpMode {
         linkageSubsystem = new LinkageSubsystem();
         slideSubsystem = new SlideSubsystem();
         armSubsystem = new ArmSubsystem();
+        pistonSubsystem = new PistonSubsystem();
 
+        pistonSubsystem.deactivate();
         extendoSubsystem.enable();
 
         pathTimer = new Timer();

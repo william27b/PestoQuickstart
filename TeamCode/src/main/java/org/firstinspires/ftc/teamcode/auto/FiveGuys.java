@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.AUTO_DOWN;
+import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
@@ -13,7 +14,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 import com.shprobotics.pestocore.processing.MotorCortex;
@@ -21,10 +22,12 @@ import com.shprobotics.pestocore.processing.MotorCortex;
 import org.firstinspires.ftc.teamcode.constants.FConstants;
 import org.firstinspires.ftc.teamcode.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.PistonSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
 @Autonomous(name = "*** 5+0 ***")
@@ -36,6 +39,7 @@ public class FiveGuys extends OpMode {
     public LinkageSubsystem linkageSubsystem;
     public SlideSubsystem slideSubsystem;
     public ArmSubsystem armSubsystem;
+    public PistonSubsystem pistonSubsystem;
 
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
@@ -53,17 +57,17 @@ public class FiveGuys extends OpMode {
     private final Pose pushOneControlPoint5 = new Pose(76, 12);
     private final Pose pushOneControlPoint6 = new Pose(54, 24);
 
-    private final Pose pushTwoPose = new Pose(27.5, 15, Math.toRadians(0));
+    private final Pose pushTwoPose = new Pose(27.5, 12.5, Math.toRadians(0));
     private final Pose pushTwoControlPoint1 = new Pose(58, 36);
-    private final Pose pushTwoControlPoint2 = new Pose(70, 20);
+    private final Pose pushTwoControlPoint2 = new Pose(65, 15);
     private final Pose pushTwoControlPoint3 = new Pose(38, 35);
-    private final Pose pushTwoControlPoint4 = new Pose(84, 11);
+    private final Pose pushTwoControlPoint4 = new Pose(77, 10);
     private final Pose pushTwoControlPoint5 = new Pose(44, 13);
 
-    private final Pose pushThreePose = new Pose(10.5, 7, Math.toRadians(0));
+    private final Pose pushThreePose = new Pose(9.5, 5, Math.toRadians(0));
     private final Pose pushThreeControlPoint1 = new Pose(62, 24);
-    private final Pose pushThreeControlPoint2 = new Pose(76, 1);
-    private final Pose pushThreeControlPoint3 = new Pose(36, 7);
+    private final Pose pushThreeControlPoint2 = new Pose(70, 1);
+    private final Pose pushThreeControlPoint3 = new Pose(36, 5);
 
     private final Pose scoreOnePose = new Pose(34, 72.5, Math.toRadians(0));
     private final Pose scoreOneControlPoint = new Pose(7, 70);
@@ -208,7 +212,7 @@ public class FiveGuys extends OpMode {
                 wait(0.1);
                 armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
 
-                wait(0.5);
+                wait(0.6);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.SPEC);
 
                 setPathState(PathState.SUB_TO_PUSH);
@@ -227,7 +231,7 @@ public class FiveGuys extends OpMode {
                 wait(0.5);
 
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
-                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.setState(DOWN);
                 slideSubsystem.update();
 
                 wait(0.5);
@@ -255,7 +259,7 @@ public class FiveGuys extends OpMode {
                 follower.followPath(grabTwo);
 
                 wait(0.25);
-                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
 
                 if(!clawSubsystem.breakbeam.getState()) {
@@ -284,7 +288,7 @@ public class FiveGuys extends OpMode {
                 follower.followPath(grabThree);
 
                 wait(0.25);
-                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
 
                 if(!clawSubsystem.breakbeam.getState()) {
@@ -312,7 +316,7 @@ public class FiveGuys extends OpMode {
                 follower.followPath(grabFour);
 
                 wait(0.5);
-                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.WALL);
 
                 if(!clawSubsystem.breakbeam.getState()) {
@@ -334,13 +338,13 @@ public class FiveGuys extends OpMode {
                 break;
 
             case GRAB_BUCKET:
-                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
 
                 follower.followPath(grabBucket);
 
                 wait(0.5);
-                slideSubsystem.setState(AUTO_DOWN);
+                slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
 
@@ -399,6 +403,7 @@ public class FiveGuys extends OpMode {
         slideSubsystem = new SlideSubsystem();
         armSubsystem = new ArmSubsystem();
 
+        pistonSubsystem.deactivate();
         extendoSubsystem.enable();
 
         pathTimer = new Timer();
@@ -421,6 +426,7 @@ public class FiveGuys extends OpMode {
     @Override
     public void start() {
         extendoSubsystem.enable();
+
         opmodeTimer.resetTimer();
         setPathState(PathState.PRELOAD_TO_SUB);
 
