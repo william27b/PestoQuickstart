@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
-import static org.firstinspires.ftc.teamcode.subsystems.PTOSubsystem.PTOState.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.CLIMB_UP;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.MEDIUM;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
@@ -10,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideStat
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.shprobotics.pestocore.devices.GamepadInterface;
 import com.shprobotics.pestocore.drivebases.controllers.MecanumController;
 import com.shprobotics.pestocore.drivebases.controllers.TeleOpController;
@@ -30,8 +29,8 @@ public class BaseRobot extends LinearOpMode {
     public SlideSubsystem slideSubsystem;
     public ArmSubsystem armSubsystem;
 
-    public PistonSubsystem pistonSubsystem;
-    public PTOSubsystem ptoSubsystem;
+//    public PistonSubsystem pistonSubsystem;
+//    public PTOSubsystem ptoSubsystem;
 
     public GamepadInterface gamepadInterface1;
     public GamepadInterface gamepadInterface2;
@@ -54,10 +53,10 @@ public class BaseRobot extends LinearOpMode {
         // SPEC
         SPEC_WALL ("spec - wall"),
         SPEC_WALL_FROM_RUNG ("spec - wall - from rung"),
-        HIGH_RUNG ("spec - high rung"),
+        HIGH_RUNG ("spec - high rung");
         //CLIMB
-        CLIMB_SLIDES_UP ("climb - raise slides"),
-        CLIMB_SLIDES_DOWN("climb - lower slides");
+//        CLIMB_SLIDES_UP ("climb - raise slides"),
+//        CLIMB_SLIDES_DOWN("climb - lower slides");
 
 
         TransferState(String macroAlias) {
@@ -111,8 +110,8 @@ public class BaseRobot extends LinearOpMode {
         slideSubsystem = new SlideSubsystem();
         armSubsystem = new ArmSubsystem();
 
-        ptoSubsystem = new PTOSubsystem();
-        pistonSubsystem = new PistonSubsystem();
+//        ptoSubsystem = new PTOSubsystem();
+//        pistonSubsystem = new PistonSubsystem();
 
         gamepadInterface1 = new GamepadInterface(gamepad1);
         gamepadInterface2 = new GamepadInterface(gamepad2);
@@ -164,12 +163,16 @@ public class BaseRobot extends LinearOpMode {
 
             @Override
             public boolean loop(double v) {
-                if (v > 0.5)
+                if (v > 0.8)
                     return false;
 
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
                 armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
                 slideSubsystem.setState(DOWN);
+
+                if (v > 3.0)
+                    return false;
+
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
 
                 return true;
@@ -386,6 +389,22 @@ public class BaseRobot extends LinearOpMode {
             }
         });
 
+        FrontalLobe.addMacro("slides - reset", new FrontalLobe.Macro() {
+            @Override
+            public void start() {
+                slideSubsystem.topSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                slideSubsystem.botSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+
+            @Override
+            public boolean loop(double v) {
+                slideSubsystem.topSlide.setPowerResult(0.6);
+                slideSubsystem.botSlide.setPowerResult(0.6);
+
+                return false;
+            }
+        });
+
 //        FrontalLobe.addMacro("climb - piston", new FrontalLobe.Macro() {
 //            @Override
 //            public void start() {
@@ -441,26 +460,26 @@ public class BaseRobot extends LinearOpMode {
 //        });
 
 
-        FrontalLobe.addMacro("L3 - Piston", new FrontalLobe.Macro() {
-            @Override
-            public void start() {
-                pistonSubsystem.setState(PistonSubsystem.PistonState.UP);
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
-                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                armSubsystem.setState(ArmSubsystem.ArmState.CLIMB);
-            }
-
-            @Override
-            public boolean loop(double v) {
-                if (v < 0.8)
-                    return false;
-
-                pistonSubsystem.setState(PistonSubsystem.PistonState.DOWN);
-                ptoSubsystem.setState(NEUTRAL);
-                slideSubsystem.setState(CLIMB_UP);
-
-                return true;
-            }
-        });
+//        FrontalLobe.addMacro("L3 - Piston", new FrontalLobe.Macro() {
+//            @Override
+//            public void start() {
+//                pistonSubsystem.setState(PistonSubsystem.PistonState.UP);
+//                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
+//                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+//                armSubsystem.setState(ArmSubsystem.ArmState.CLIMB);
+//            }
+//
+//            @Override
+//            public boolean loop(double v) {
+//                if (v < 0.8)
+//                    return false;
+//
+//                pistonSubsystem.setState(PistonSubsystem.PistonState.DOWN);
+//                ptoSubsystem.setState(NEUTRAL);
+//                slideSubsystem.setState(CLIMB_UP);
+//
+//                return true;
+//            }
+//        });
     }
 }

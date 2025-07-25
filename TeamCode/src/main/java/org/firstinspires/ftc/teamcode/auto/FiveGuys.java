@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.AUTO_DOWN;
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
@@ -14,7 +13,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 import com.shprobotics.pestocore.processing.MotorCortex;
@@ -22,9 +21,7 @@ import com.shprobotics.pestocore.processing.MotorCortex;
 import org.firstinspires.ftc.teamcode.constants.FConstants;
 import org.firstinspires.ftc.teamcode.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.ClimbSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
@@ -39,7 +36,6 @@ public class FiveGuys extends OpMode {
     public LinkageSubsystem linkageSubsystem;
     public SlideSubsystem slideSubsystem;
     public ArmSubsystem armSubsystem;
-    public ClimbSubsystem climbSubsystem;
 
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
@@ -206,7 +202,7 @@ public class FiveGuys extends OpMode {
             case PRELOAD_TO_SUB:
                 follower.followPath(scorePreload);
 
-                slideSubsystem.climb(true);
+                slideSubsystem.setFullPower(true);
                 slideSubsystem.setState(SPEC);
 
                 wait(0.1);
@@ -219,7 +215,7 @@ public class FiveGuys extends OpMode {
                 break;
 
             case SUB_TO_PUSH:
-                slideSubsystem.climb(false);
+                slideSubsystem.setFullPower(false);
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
@@ -401,8 +397,7 @@ public class FiveGuys extends OpMode {
         intakeSubsystem = new IntakeSubsystem();
         linkageSubsystem = new LinkageSubsystem();
         slideSubsystem = new SlideSubsystem();
-        armSubsystem = new ArmSubsystem(hardwareMap);
-        climbSubsystem = new ClimbSubsystem();
+        armSubsystem = new ArmSubsystem();
 
         extendoSubsystem.enable();
 

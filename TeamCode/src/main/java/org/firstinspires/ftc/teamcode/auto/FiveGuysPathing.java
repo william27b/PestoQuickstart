@@ -14,7 +14,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.shprobotics.pestocore.processing.FrontalLobe;
 import com.shprobotics.pestocore.processing.MotorCortex;
@@ -22,7 +22,6 @@ import com.shprobotics.pestocore.processing.MotorCortex;
 import org.firstinspires.ftc.teamcode.constants.FConstants;
 import org.firstinspires.ftc.teamcode.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -220,7 +219,7 @@ public class FiveGuysPathing extends OpMode {
             case PRELOAD_TO_SUB:
                 follower.followPath(scorePreload);
 
-                slideSubsystem.climb(true);
+                slideSubsystem.setFullPower(true);
                 slideSubsystem.setState(SPEC);
 
                 wait(0.1);
@@ -233,7 +232,7 @@ public class FiveGuysPathing extends OpMode {
                 break;
 
             case SUB_TO_PUSH:
-                slideSubsystem.climb(false);
+                slideSubsystem.setFullPower(false);
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
