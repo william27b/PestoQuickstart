@@ -16,12 +16,11 @@ public class SlideSubsystem {
 
     public enum SlideState {
         DOWN (0),
-        AUTO_DOWN(0),
         CLIMB(-50),
         MEDIUM(-400),
         CLIMB_UP(-900),
-        SPEC (-815),
-        UP (-1250);
+        SPEC (-845),
+        UP (-1350);
 
         SlideState(int position) {
             this.position = position;
@@ -37,11 +36,11 @@ public class SlideSubsystem {
     public SlideSubsystem() {
         this.botSlide = MotorCortex.getMotor("botSlide");
         this.botSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.botSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        this.botSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.topSlide = MotorCortex.getMotor("topSlide");
         this.topSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.topSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.topSlide.setDirection(DcMotorSimple.Direction.FORWARD);
 
         this.state = DOWN;
         this.update();
@@ -98,7 +97,7 @@ public class SlideSubsystem {
             this.topSlide.setPowerResult(0.7);
         }
 
-        if(botSlide.getCurrentPosition() > -10)
+        if(botSlide.getCurrentPosition() > -5)
             autoOverride = false;
 
         this.botSlide.setTargetPosition(this.state.getPosition());

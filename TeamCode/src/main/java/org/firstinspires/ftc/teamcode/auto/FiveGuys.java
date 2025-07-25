@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.AUTO_DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
@@ -30,7 +29,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PistonSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
-@Autonomous(name = "*** 5+0 ***")
+@Autonomous(name = "*** 5+0 - Five Guys ***")
 public class FiveGuys extends OpMode {
 
     public ClawSubsystem clawSubsystem;

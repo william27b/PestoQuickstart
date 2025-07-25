@@ -20,11 +20,11 @@ public class IntakeSubsystem {
     private IntakeState state;
 
     public enum IntakeState {
-        INTAKE (-1.00, 0.40, 0.49),
-        NEUTRAL (0.00, 0.00, 0.49),
-        STORING (-0.30, 0.05, 0.49),
-        STORING_EMPTY (0.00, 0.05, 0.49),
-        STORED (0.00, 0.05, 0.11),
+        INTAKE (-1.00, 0.40, 0.55),
+        NEUTRAL (0.00, 0.00, 0.55),
+        STORING (-0.30, 0.07, 0.55),
+        STORING_EMPTY (0.00, 0.07, 0.55),
+        STORED (0.00, 0.07, 0.11),
         TO_OUTTAKE (0.00, 0.40, 0.11),
         OUTTAKE (1.00, 0.40, 0.11),
         MEGA_OUTTAKE (-0.60, 0.40, 0.11);

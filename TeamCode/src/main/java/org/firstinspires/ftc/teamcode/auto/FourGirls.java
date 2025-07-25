@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LinkageSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PistonSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 
-@Autonomous(name = "*** Four Girls ***")
+@Autonomous(name = "*** 4+0 - Four Girls ***")
 public class FourGirls extends OpMode {
 
     public ClawSubsystem clawSubsystem;
@@ -45,11 +45,11 @@ public class FourGirls extends OpMode {
     private ElapsedTime elapsedTime;
 
     private final Pose startPose = new Pose(7, 115, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(20, 122, Math.toRadians(315));
+    private final Pose bucketPose = new Pose(9, 120, Math.toRadians(315));
 
-    private final Pose sampleOnePose = new Pose(24, 120, Math.toRadians(0));
-    private final Pose sampleTwoPose = new Pose(24, 130, Math.toRadians(0));
-    private final Pose sampleThreePose = new Pose(45, 112, Math.toRadians(90));
+    private final Pose sampleOnePose = new Pose(20, 110, Math.toRadians(0));
+    private final Pose sampleTwoPose = new Pose(24, 120, Math.toRadians(0));
+    private final Pose sampleThreePose = new Pose(45, 110, Math.toRadians(90));
     private final Pose parkPose = new Pose(60, 100, Math.toRadians(0));
 
 
@@ -108,78 +108,79 @@ public class FourGirls extends OpMode {
 
     }
     public void autonomousPathUpdate() {
-        if (follower.isBusy() && clawSubsystem.breakbeam.getState())
+        if (follower.isBusy())
             return;
 
         switch (pathState) {
             case PRELOAD_TO_BUCKET:
                 follower.followPath(scorePreload);
 
-//                armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
-//                slideSubsystem.setState(UP);
-//
-//                wait(1.0);
-//                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+                armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
+                slideSubsystem.setState(UP);
 
-                setPathState(PathState.GRAB_ONE);
+                if(slideSubsystem.getPosition() < UP.getPosition()+100) {
+                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+                    setPathState(PathState.GRAB_ONE);
+                }
+
                 break;
 
             case GRAB_ONE:
-//                grabSample();
+                grabSample();
 
                 follower.followPath(grabOne);
-
-//                if(intakeSubsystem.getSample().equals("yellow"))
-                    setPathState(PathState.DEPOSIT_ONE);
-
-                break;
-
-            case DEPOSIT_ONE:
-//                depositSample();
-                follower.followPath(depositOne);
-
-                break;
-
-            case GRAB_TWO:
-//                grabSample();
-                follower.followPath(grabTwo);
-
-//                if(intakeSubsystem.getSample().equals("yellow"))
-                    setPathState(PathState.DEPOSIT_ONE);
-
-                break;
-
-            case DEPOSIT_TWO:
-//                depositSample();
-                follower.followPath(depositTwo);
-
-                setPathState(PathState.GRAB_THREE);
-                break;
-
-            case GRAB_THREE:
-//                grabSample();
-                follower.followPath(grabThree);
-
-//                if(intakeSubsystem.getSample().equals("yellow"))
-                    setPathState(PathState.DEPOSIT_ONE);
-
-                break;
-
-            case DEPOSIT_THREE:
-//                depositSample();
-                follower.followPath(depositThree);
-
-                setPathState(PathState.PARK);
-                break;
-
-            case PARK:
-//                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
 //
-//                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
-//                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
-//                slideSubsystem.setState(DOWN);
-
+////                if(intakeSubsystem.getSample().equals("yellow"))
+                    setPathState(PathState.DEPOSIT_ONE);
+//
                 break;
+//
+            case DEPOSIT_ONE:
+////                depositSample();
+//                follower.followPath(depositOne);
+//
+                break;
+//
+//            case GRAB_TWO:
+////                grabSample();
+//                follower.followPath(grabTwo);
+//
+////                if(intakeSubsystem.getSample().equals("yellow"))
+//                    setPathState(PathState.DEPOSIT_ONE);
+//
+//                break;
+//
+//            case DEPOSIT_TWO:
+////                depositSample();
+//                follower.followPath(depositTwo);
+//
+//                setPathState(PathState.GRAB_THREE);
+//                break;
+//
+//            case GRAB_THREE:
+////                grabSample();
+//                follower.followPath(grabThree);
+//
+////                if(intakeSubsystem.getSample().equals("yellow"))
+//                    setPathState(PathState.DEPOSIT_ONE);
+//
+//                break;
+//
+//            case DEPOSIT_THREE:
+////                depositSample();
+//                follower.followPath(depositThree);
+//
+//                setPathState(PathState.PARK);
+//                break;
+//
+//            case PARK:
+////                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
+////
+////                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
+////                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
+////                slideSubsystem.setState(DOWN);
+//
+//                break;
 
         }
     }
@@ -223,6 +224,7 @@ public class FourGirls extends OpMode {
 
         pistonSubsystem.deactivate();
         extendoSubsystem.enable();
+        slideSubsystem.enable();
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -232,10 +234,9 @@ public class FourGirls extends OpMode {
         follower.setStartingPose(startPose);
         buildPaths();
 
-        armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
+        armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
         linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
         clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-
     }
 
     @Override

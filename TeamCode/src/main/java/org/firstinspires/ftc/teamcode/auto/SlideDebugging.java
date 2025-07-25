@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
+import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
@@ -61,7 +62,7 @@ public class SlideDebugging extends BaseRobot {
         slideSubsystem.update();
         switch (pathState) {
             case RAISE:
-                follower.followPath(pushChain);
+                slideSubsystem.setState(UP);
                 break;
             case LOWER:
 

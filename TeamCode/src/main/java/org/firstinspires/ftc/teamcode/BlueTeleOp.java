@@ -271,6 +271,8 @@ public class BlueTeleOp extends BaseRobot {
             telemetry.addData("transfer state", transferState);
             telemetry.addData("velocity", slideSubsystem.getVelocity());
             telemetry.addData("position", slideSubsystem.getPosition());
+
+            slideSubsystem.update();
             telemetry.update();
             tracker.update();
         }
