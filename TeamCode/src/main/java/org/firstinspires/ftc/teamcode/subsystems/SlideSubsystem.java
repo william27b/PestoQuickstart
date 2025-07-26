@@ -19,7 +19,7 @@ public class SlideSubsystem {
         CLIMB(-50),
         MEDIUM(-400),
         CLIMB_UP(-900),
-        SPEC (-845),
+        SPEC (-815),
         UP (-1350);
 
         SlideState(int position) {
