@@ -191,13 +191,11 @@ public class BlueTeleOp extends BaseRobot {
                     clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
                 if (extendoSubsystem.getState() == IN) {
                     extendoSubsystem.setState(OUT); // toggle extension
+                    FrontalLobe.removeMacros("intake");
                 } else {
+                    FrontalLobe.removeMacros("intake");
                     FrontalLobe.useMacro("intake - store");
                 }
-            }
-
-            if (gamepadInterface1.isKey(A)) {
-                extendoSubsystem.setState(OUT);
             }
 
             // COLOR SENSOR LOGIC
@@ -208,8 +206,10 @@ public class BlueTeleOp extends BaseRobot {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.MEGA_OUTTAKE);
                     FrontalLobe.removeMacros("intake");
                 } else if (gamepadInterface1.isKey(A)) {
-                    if (!FrontalLobe.hasMacro("intake - outtake"))
+                    if (!FrontalLobe.hasMacro("intake - outtake")) {
+                        FrontalLobe.removeMacros("intake");
                         FrontalLobe.useMacro("intake - outtake");
+                    }
                 } else if (shouldAccept) {
                     intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
                     FrontalLobe.removeMacros("intake");
