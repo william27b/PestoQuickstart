@@ -10,11 +10,12 @@ public class ArmSubsystem {
     private ArmState state;
 
     public enum ArmState {
-        WALL (0.045),
-        BUCKET (0.16),
-        CLIMB(0.35),
-        DEPOSIT (0.74),
-        TRANSFER (0.95);
+        WALL (0.060),
+        BUCKET (0.21),
+        CLIMB(0.40),
+        AUTO(0.75),
+        DEPOSIT (0.79),
+        TRANSFER (0.98);
 
         ArmState(double position) {
             this.position = position;

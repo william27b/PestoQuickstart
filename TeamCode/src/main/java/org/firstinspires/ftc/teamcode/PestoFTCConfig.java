@@ -102,6 +102,8 @@ public class PestoFTCConfig implements ConfigInterface {
 
             TeleOpController teleOpController = new TeleOpController(driveController, hardwareMap);
 
+            teleOpController.useIMU();
+
             teleOpController.setSpeedController(gamepad -> 1.0);
 
             teleOpController.counteractCentripetalForce(tracker, Kinematics.MAX_VELOCITY);

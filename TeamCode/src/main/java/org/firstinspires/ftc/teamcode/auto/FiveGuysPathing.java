@@ -55,7 +55,7 @@ public class FiveGuysPathing extends OpMode {
     private final Pose pushOneControlPoint5 = new Pose(66, 12);
     private final Pose pushOneControlPoint6 = new Pose(54, 24);
 
-    private final Pose pushTwoPose = new Pose(27.5, 15, Math.toRadians(0));
+    private final Pose pushTwoPose = new Pose(27.5, 12, Math.toRadians(0));
     private final Pose pushTwoControlPoint1 = new Pose(58, 36);
     private final Pose pushTwoControlPoint2 = new Pose(65, 15);
     private final Pose pushTwoControlPoint3 = new Pose(38, 35);
@@ -67,31 +67,31 @@ public class FiveGuysPathing extends OpMode {
     private final Pose pushThreeControlPoint2 = new Pose(70, 1);
     private final Pose pushThreeControlPoint3 = new Pose(36, 4);
 
-    private final Pose scoreOnePose = new Pose(29, 75, Math.toRadians(0));
+    private final Pose scoreOnePose = new Pose(32, 75, Math.toRadians(0));
     private final Pose scoreOneControlPoint = new Pose(10, 72);
 
     private final Pose grabTwoPose = new Pose(14.5, 38, Math.toRadians(0));
     private final Pose grabTwoControlPoint1 = new Pose(17, 62);
     private final Pose grabTwoControlPoint2 = new Pose(20, 40);
 
-    private final Pose scoreTwoPose = new Pose(29, 72, Math.toRadians(0));
+    private final Pose scoreTwoPose = new Pose(30, 72, Math.toRadians(0));
     private final Pose scoreTwoControlPoint = new Pose(10, 69);
 
     private final Pose grabThreePose = new Pose(14.5, 38, Math.toRadians(0));
     private final Pose grabThreeControlPoint1 = new Pose(17, 62);
     private final Pose grabThreeControlPoint2 = new Pose(20, 40);
 
-    private final Pose scoreThreePose = new Pose(29, 69, Math.toRadians(0));
+    private final Pose scoreThreePose = new Pose(30, 69, Math.toRadians(0));
     private final Pose scoreThreeControlPoint = new Pose(10, 66);
 
     private final Pose grabFourPose = new Pose(14.5, 38, Math.toRadians(0));
     private final Pose grabFourControlPoint1 = new Pose(17, 62);
     private final Pose grabFourControlPoint2 = new Pose(20, 40);
 
-    private final Pose scoreFourPose = new Pose(29, 66, Math.toRadians(0));
+    private final Pose scoreFourPose = new Pose(30, 66, Math.toRadians(0));
     private final Pose scoreFourControlPoint = new Pose(10, 63);
 
-    private final Pose grabBucketPose = new Pose(16, 65, Math.toRadians(270));
+    private final Pose grabBucketPose = new Pose(15, 30, Math.toRadians(0));
 
     private final Pose scoreBucketPose = new Pose(30, 115, Math.toRadians(315));
     private final Pose scoreBucketControlPoint = new Pose(30, 118);
@@ -224,7 +224,7 @@ public class FiveGuysPathing extends OpMode {
                 slideSubsystem.setState(SPEC);
 
                 wait(0.1);
-                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                armSubsystem.setState(ArmSubsystem.ArmState.AUTO);
 
                 wait(0.5);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.SPEC);
@@ -260,7 +260,7 @@ public class FiveGuysPathing extends OpMode {
 
                 follower.followPath(depositOne);
 
-                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                armSubsystem.setState(ArmSubsystem.ArmState.AUTO);
                 slideSubsystem.setState(SPEC);
                 setPathState(PathState.GRAB_TWO);
                 break;
@@ -286,7 +286,7 @@ public class FiveGuysPathing extends OpMode {
 
                 follower.followPath(depositTwo);
 
-                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                armSubsystem.setState(ArmSubsystem.ArmState.AUTO);
                 slideSubsystem.setState(SPEC);
                 wait(1.0);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
@@ -314,7 +314,7 @@ public class FiveGuysPathing extends OpMode {
 
                 follower.followPath(depositThree);
 
-                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                armSubsystem.setState(ArmSubsystem.ArmState.AUTO);
                 slideSubsystem.setState(SPEC);
                 wait(1.0);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
@@ -342,7 +342,7 @@ public class FiveGuysPathing extends OpMode {
 
                 follower.followPath(depositFour);
 
-                armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
+                armSubsystem.setState(ArmSubsystem.ArmState.AUTO);
                 slideSubsystem.setState(SPEC);
                 wait(1.0);
                 linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
@@ -360,39 +360,29 @@ public class FiveGuysPathing extends OpMode {
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
                 slideSubsystem.setState(DOWN);
                 armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
-
-                extendoSubsystem.setState(ExtendoSubsystem.ExtendoState.OUT);
-//                intakeSubsystem.setState(IntakeSubsystem.IntakeState.INTAKE);
-
-                if(!intakeSubsystem.getSample().equals("nothing")) {
-                    intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORING);
-                    extendoSubsystem.setState(ExtendoSubsystem.ExtendoState.IN);
-
-                    setPathState(PathState.BUCKET);
-                }
-
-                break;
-
-            case BUCKET:
-                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                follower.followPath(depositBucket);
-                wait(0.5);
-
-//                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
-//                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
-//                wait(1.0);
-//                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
-//
-//                wait(0.5);
-//
-//                slideSubsystem.setState(UP);
-//                wait(1.0);
-//                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
-//                armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
 
                 setPathState(PathState.PARK);
+
+
                 break;
+
+//            case BUCKET:
+//
+//
+////                linkageSubsystem.setState(LinkageSubsystem.LinkageState.TRANSFER);
+////                intakeSubsystem.setState(IntakeSubsystem.IntakeState.STORED);
+////                wait(1.0);
+////                clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);
+////
+////                wait(0.5);
+////
+////                slideSubsystem.setState(UP);
+////                wait(1.0);
+////                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+////                armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
+//
+//                setPathState(PathState.PARK);
+//                break;
 
             case PARK:
 //                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);

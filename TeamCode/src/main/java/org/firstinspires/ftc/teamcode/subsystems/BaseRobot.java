@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static org.firstinspires.ftc.teamcode.subsystems.ExtendoSubsystem.ExtendoState.IN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.DOWN;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.MEDIUM;
+import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.NEW_SPEC;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.SPEC;
 import static org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem.SlideState.UP;
 
@@ -314,12 +315,12 @@ public class BaseRobot extends LinearOpMode {
                     return false;
 
                 armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
-                slideSubsystem.setState(SPEC);
+                slideSubsystem.setState(NEW_SPEC); //TODO FROM SPEC
 
                 if (v < 1.0)
                     return false;
 
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED); //TODO FROM OVEREXTENDED
 
                 return true;
             }
@@ -329,11 +330,14 @@ public class BaseRobot extends LinearOpMode {
             @Override
             public void start() {
                 clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
-                linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
             }
 
             @Override
             public boolean loop(double v) {
+                if (v < 0.5) return false;
+
+                linkageSubsystem.setState(LinkageSubsystem.LinkageState.INTAKE);
+
                 if (v < 1.0) return false;
 
                 clawSubsystem.setState(ClawSubsystem.ClawState.CLOSED);

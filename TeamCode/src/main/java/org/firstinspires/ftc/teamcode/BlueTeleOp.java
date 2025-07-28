@@ -121,6 +121,7 @@ public class BlueTeleOp extends BaseRobot {
 
             if(gamepad1.dpad_left){
                 teleOpController.resetIMU();
+                tracker.reset();
             }
 
             // SPEC HIGH RUNG STATES

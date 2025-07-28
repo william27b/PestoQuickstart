@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.constants;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.localization.Localizers;
 import com.pedropathing.follower.FollowerConstants;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+@Config
 public class FConstants {
     static {
         FollowerConstants.localizers = Localizers.PINPOINT;

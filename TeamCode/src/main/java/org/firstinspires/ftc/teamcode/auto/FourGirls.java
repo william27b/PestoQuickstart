@@ -44,11 +44,11 @@ public class FourGirls extends OpMode {
     private Timer pathTimer, opmodeTimer;
     private ElapsedTime elapsedTime;
 
-    private final Pose startPose = new Pose(7, 115, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(9, 120, Math.toRadians(315));
-
-    private final Pose sampleOnePose = new Pose(20, 110, Math.toRadians(0));
-    private final Pose sampleTwoPose = new Pose(24, 120, Math.toRadians(0));
+    private final Pose startPose = new Pose(7, 100, Math.toRadians(270));
+    private final Pose bucketPose = new Pose(21, 115, Math.toRadians(315));
+    private final Pose bucketControlPoint = new Pose(27, 112);
+    private final Pose sampleOnePose = new Pose(15, 105, Math.toRadians(0));
+    private final Pose sampleTwoPose = new Pose(15, 130, Math.toRadians(0));
     private final Pose sampleThreePose = new Pose(45, 110, Math.toRadians(90));
     private final Pose parkPose = new Pose(60, 100, Math.toRadians(0));
 
@@ -73,11 +73,12 @@ public class FourGirls extends OpMode {
     }
     public void buildPaths() {
 
-        scorePreload = new Path(new BezierLine(new Point(startPose),
+        scorePreload = new Path(new BezierCurve(new Point(startPose),
+                new Point(bucketControlPoint),
                 new Point(bucketPose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), bucketPose.getHeading());
 
-        grabOne = new Path(new BezierLine(new Point(bucketPose),
+        grabOne = new Path(new BezierCurve(new Point(bucketPose),
                 new Point(sampleOnePose)));
         grabOne.setLinearHeadingInterpolation(bucketPose.getHeading(), sampleOnePose.getHeading());
 
@@ -115,40 +116,42 @@ public class FourGirls extends OpMode {
             case PRELOAD_TO_BUCKET:
                 follower.followPath(scorePreload);
 
-                armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
-                slideSubsystem.setState(UP);
-
-                if(slideSubsystem.getPosition() < UP.getPosition()+100) {
-                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
-                    setPathState(PathState.GRAB_ONE);
-                }
+//                armSubsystem.setState(ArmSubsystem.ArmState.BUCKET);
+//                slideSubsystem.setState(UP);
+//
+//                if(slideSubsystem.getPosition() < UP.getPosition()+100) {
+//                    linkageSubsystem.setState(LinkageSubsystem.LinkageState.OVEREXTENDED);
+                setPathState(PathState.GRAB_ONE);
+//                }
 
                 break;
 
             case GRAB_ONE:
-                grabSample();
+//                grabSample();
 
                 follower.followPath(grabOne);
 //
 ////                if(intakeSubsystem.getSample().equals("yellow"))
-                    setPathState(PathState.DEPOSIT_ONE);
+                setPathState(PathState.DEPOSIT_ONE);
 //
                 break;
 //
             case DEPOSIT_ONE:
 ////                depositSample();
-//                follower.followPath(depositOne);
+                follower.followPath(depositOne);
 //
+                setPathState(PathState.GRAB_TWO);
+
                 break;
 //
-//            case GRAB_TWO:
+            case GRAB_TWO:
 ////                grabSample();
-//                follower.followPath(grabTwo);
+                follower.followPath(grabTwo);
 //
 ////                if(intakeSubsystem.getSample().equals("yellow"))
-//                    setPathState(PathState.DEPOSIT_ONE);
+                setPathState(PathState.PARK);
 //
-//                break;
+                break;
 //
 //            case DEPOSIT_TWO:
 ////                depositSample();
@@ -173,14 +176,14 @@ public class FourGirls extends OpMode {
 //                setPathState(PathState.PARK);
 //                break;
 //
-//            case PARK:
+            case PARK:
 ////                clawSubsystem.setState(ClawSubsystem.ClawState.OPEN);
 ////
 ////                armSubsystem.setState(ArmSubsystem.ArmState.TRANSFER);
 ////                linkageSubsystem.setState(LinkageSubsystem.LinkageState.RETRACTED);
 ////                slideSubsystem.setState(DOWN);
 //
-//                break;
+                break;
 
         }
     }
@@ -232,6 +235,7 @@ public class FourGirls extends OpMode {
 
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
+        follower.setMaxPower(0.5);
         buildPaths();
 
         armSubsystem.setState(ArmSubsystem.ArmState.DEPOSIT);
